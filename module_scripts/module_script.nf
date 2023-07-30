@@ -80,9 +80,10 @@ process find_16s_hit {
 }
 
 // 4. De novo genome assembly
+// With spades
 // Inputs: raw or trimmed reads
 
-process genome_assembly {
+process spades_genome_assembly {
     errorStrategy 'ignore'
     publishDir 
     
@@ -96,6 +97,109 @@ process genome_assembly {
     script:
         """
         "./${spades_script}" ${gc_reads[0]} ${gc_reads[1]} ${ga_reads_pair_id}
+
+        """
+
+}
+
+// With flye/medaka
+process flye_genome_assembly {
+
+    input:
+        val (flye_script)
+        path (ont_minion_read)
+
+    output:
+        path "consensus.fasta"
+
+    script:
+        """
+
+        "./${flye_script}" ${ont_minion_read}
+
+        """
+}
+
+// 5. Map reads to Reference
+// Emit sam
+process emit_sam_bwa {
+    
+    input:
+        val (emit_sam_bwa_script)
+        tuple val(emit_sam_reads_pair_id), path(emit_sam_reads)
+        val (fastafile)
+        
+
+
+    output:
+        path "${emit_sam_reads_pair_id}_sam", emit: reads_sam
+
+    script:
+        """
+
+        bash ${emit_sam_bwa_script} ${emit_sam_reads[0]} ${emit_sam_reads[1]} ${fastafile} ${emit_sam_reads_pair_id}
+
+        """
+}
+
+process emit_sam_minimap {
+    
+    input:
+        val (emit_sam_mm_script)
+        path (emit_sam_reads)
+        val (fastafile)
+        
+
+
+    output:
+        path "*_sam", emit: reads_sam
+
+    script:
+        """
+
+        "./${emit_sam_mm_script}" ${emit_sam_reads} ${fastafile} 
+
+        """
+}
+
+// Emit bam
+process coordsort_sam {
+
+
+        input:
+            val (coordsort_sam_script)
+            path reads_sam
+
+
+
+        output:
+            path "*_sam.bam", emit: reads_bam
+            
+
+        script:
+            """
+
+            "./${coordsort_sam_script}" ${reads_sam}
+
+            """
+}
+
+// Reads decontamination
+
+process bamtofastq {
+    
+    input:
+        val (bamtofastq_script)
+        path bamfile
+        val (platform)
+
+    output:
+        path "*fastq*"
+
+    script:
+        """
+
+        "./${bamtofastq_script}"" ${bamfile} ${platform}
 
         """
 
