@@ -10,7 +10,7 @@ if [[ $3 == "se_illumina_reads" ]]; then
 
 elif [[ $3 == "minion_ont_reads" ]]; then # indexes fasta reference and aligns the reads to the reference supplied using minimap
     sample_id=$(basename $1 .fastq)
-    minimap2 -d $2 h37rv.mmi
+    minimap2 -d h37rv.mmi $2 
     minimap2 -a h37rv.mmi $1 -R @RG\\tID:$sample_id\\tSM:$sample_id -o "${sample_id}_sam"
 elif [[ $5 == "pe_illumina_reads" ]]; then
     bwa index $3

@@ -13,15 +13,16 @@ elif [[ $2 == "minion_ont_reads" ]]; then # uses flye assmbler to generate a dra
     flye --nano-raw $1 --out-dir nano_output
     cd nano_output
     mv assembly.fasta ../
-
+    cd ../
     medaka_consensus -i $1 -d assembly.fasta  -o medaka_output 
     cd medaka_output
     mv consensus.fasta ${filename}_contig.fasta
-    mv ${filename}_contigs.fasta ../
-
-elif [[ $4 == "pe_illumina_reads" ]]; then
     mv ${filename}_contig.fasta ../
-    spades.py --careful -1 $1 -2 $2 -o ${3}_spades_result
+
+elif [[ $4 == "pe_illumina_reads" ]]; then  # For now, I'm using just 1 out of the two reads generated till I can solve the "unequal read length problem"
+    mv ${filename}_contig.fasta ../
+    #spades.py --careful -1 $1 -2 $2 -o ${3}_spades_result
+    spades.py --careful -s $1 -o ${3}_spades_result # Choice of $1 over $2 is arbitrary
     cd ${3}_spades_result
     mv contigs.fasta ${3}_contig.fasta
 

@@ -6,10 +6,10 @@
 
 filename=$(basename $1 _sam.bam)
 
-if [[ $2 == "ont" ]]; then
+if [[ $2 == "minion_ont_reads" || $2 == "se_illumina_reads" ]]; then
     samtools fastq -0 "${filename}.fastq" -F 4 $1
 
-else
-    samtools fastq -1 "${filename}.fastq_1" -2 "${filename}.fastq_2" -F 4 $1
+elif [[ $2 == "pe_illumina_reads" ]]; then
+    samtools fastq -1 "${filename}_1.fastq" -2 "${filename}_2.fastq" -F 4 $1
 
 fi

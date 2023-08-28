@@ -1,4 +1,4 @@
-#!/bin/env/python
+#!/bin/python
 
 import re
 import argparse
@@ -16,7 +16,7 @@ blast_16s_output_files_list = []
 
 # 2. Parse positional parameters and save files in a list 
 for file in files:
-    if re.search("[a-z]*_[0-9]*[i]?[a-z]?_16s_output", file):
+    if re.search("[a-z]*_[0-9]*[i]?[a-z]?_16s_output.tsv", file):
         blast_16s_output_files_list.append(file)
     elif re.search("^[0-9]{2,3}$", file):
         params.append(file)
@@ -132,15 +132,15 @@ def return_best_hits(sample_file:str, p_cov: float, p_id: float):
 def parse_samples(blast_16s_output_files_list:list, p_cov: float, p_id: float):
     per_sample_parameters = {}
     for sample_file in blast_16s_output_files_list:
-        if sample_file.endswith('output'):
-            sample_name = sample_file.rsplit("_16s_output")[0]
+        if sample_file.endswith('output.tsv'):
+            sample_name = sample_file.rsplit("_16s_output.tsv")[0]
             best_hit = return_best_hits(sample_file, p_cov, p_id)
             per_sample_parameters[sample_name] = best_hit
 
         else: 
             continue        
     per_sample_parameters_df = pd.DataFrame.from_dict(per_sample_parameters, orient='index')
-    with open("16S_samples_output.tsv", 'w') as output_file:
+    with open("parsed_16S_samples_output.tsv", 'w') as output_file:
         per_sample_parameters_df.to_csv(output_file, sep = '\t')
     return output_file
 
