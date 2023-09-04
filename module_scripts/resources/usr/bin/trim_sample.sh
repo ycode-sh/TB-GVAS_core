@@ -7,9 +7,7 @@
 
 if [[ $3 == "se_illumina_reads" ]]; then
     file_name=$(basename $1 .fastq)
-    TrimmomaticSE  -trimlog trimLogFile $1  \ 
-        "${file_name}_P.fastq" "${file_name}_U.fastq" \
-        ILLUMINACLIP:$2:2:30:10:1:True SLIDINGWINDOW:30:20 MAXINFO:170:0.5 MINLEN:150
+    TrimmomaticSE  -trimlog trimLogFile $1 "${file_name}_P.fastq" ILLUMINACLIP:$2:2:30:10:1:True SLIDINGWINDOW:30:20 MAXINFO:170:0.5 MINLEN:150
 
 elif [[ $5 == "pe_illumina_reads" ]]; then
     TrimmomaticPE -trimlog trimlogfile $1 $2 \
