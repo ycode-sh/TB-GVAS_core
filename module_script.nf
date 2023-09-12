@@ -842,16 +842,16 @@ process generate_tree_data {
         path collected_fasta
 
     output:
-        path "tree.nhx", emit: tree_data
+       // path "tree.nhx", emit: tree_data
         path "multi-fasta_consensus.fasta", emit: multi_fasta
-        path "multi-fasta_matrix.tsv", emit: snp_matrix
+        //path "multi-fasta_matrix.tsv", emit: snp_matrix
 
     script:
         """
         cat ${collected_fasta} >  multi-fasta_consensus.fasta
-        snp-dists -b multi-fasta_consensus.fasta > multi-fasta_matrix.tsv
-        sreformat stockholm multi-fasta_consensus.fasta > multi-fasta_consensus.stockholm
-        quicktree multi-fasta_consensus.stockholm > tree.nhx
+        #snp-dists -b multi-fasta_consensus.fasta > multi-fasta_matrix.tsv
+        #sreformat stockholm multi-fasta_consensus.fasta > multi-fasta_consensus.stockholm
+        #quicktree multi-fasta_consensus.stockholm > tree.nhx
          
 
         """
@@ -865,7 +865,7 @@ workflow phylo_tree {
 
     main:
         generate_consensus_fasta(generate_consensus_script_wf, fastafile, vcf_file_wf)
-        collected_consensus = generate_consensus_fasta.out | flatten | collect
+        collected_consensus = generate_consensus_fasta.out | collect
         generate_tree_data(collected_consensus)
 
     emit:
