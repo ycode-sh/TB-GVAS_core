@@ -1,3 +1,4 @@
+#!/bin/python
 import argparse
 import re
 import json
@@ -6,7 +7,7 @@ import csv
 
 
 from  extract_dr_res_lin_1 import make_per_drug_res_dict, define_lin_dict, process_many_vcf_files
-from extract_dr_res_lin_3 import Assign_drug_res, Assign_lineage, Confidence_grading, Sample_class, remove_empty_conf_grad_drug_name, create_table_from_filtered_dict
+from extract_dr_res_lin_2 import Assign_drug_res, Assign_lineage, Confidence_grading, Sample_class, remove_empty_conf_grad_drug_name, create_table_from_filtered_dict
 
 ################# PARSE COMMAND LINE ARGUMENTS
 
@@ -26,9 +27,9 @@ drug_name_list = []
 sample_name_list_list = []
 
 for any_file in command_line_files:
-    if re.search("sample_[0-9]*[i]?[a-z]?_bt_c_ann_intersect.vcf", any_file): 
+    if re.search("sample_[0-9]*[i]?[a-z]?_bt_intersect.vcf", any_file): 
         vcf_file_list.append(any_file)
-        file_name = os.path.basename(any_file.split("_bt_c_ann_intersect.vcf", 1)[0])  
+        file_name = os.path.basename(any_file.split("_bt_intersect.vcf", 1)[0])  
         sample_name_list.append(file_name)
     elif re.search("sorted_[A-Z]*.tsv", any_file): 
         drug_resistance_file_list.append(any_file)

@@ -252,7 +252,7 @@ def bcftools_vcf(data, lineage_positions_dict, dr_res_variants):
         pass
     else:
         if data[10] == "lineage_snps":
-            if "/".join([data[3], data[4]]) == "/".join([data[15], data[16]]):
+            if "/".join([data[3], data[4]]) == "/".join([data[16], data[17]]):
                 lineage_positions_dict.setdefault(data[1], "/".join([data[3], data[4]]))
         elif data[10] == "amr_regions":
             for item in range(len(data[7].split("ANN=")[1].split(",")[:])):
@@ -284,9 +284,9 @@ def proces_a_vcf_file(a_vcf_file, variant_caller = "bcftools"):
             data = line.rstrip().rsplit("\t")
 
             if variant_caller == "bcftools":
-                bcftools_vcf(data)
-            elif variant_caller == "bcftools":
-                minos_vcf(data)
+                bcftools_vcf(data, lineage_positions_dict, dr_res_variants)
+            elif variant_caller == "minos":
+                minos_vcf(data, lineage_positions_dict, dr_res_variants)
                             
     return lineage_positions_dict, dr_res_variants
                             
@@ -295,7 +295,7 @@ def process_many_vcf_files(vcf_file_list):
     per_file_dr_res_dict = {}
     per_file_lineage_dict = {}
     for a_vcf_file in vcf_file_list:
-        vcf_file_name = os.path.basename(a_vcf_file.split("_bt_c_ann_intersect.vcf")[0])  
+        vcf_file_name = os.path.basename(a_vcf_file.split("_bt_intersect.vcf")[0])
         lineage_positions_list, dr_res_variants =  proces_a_vcf_file(a_vcf_file)
         per_file_dr_res_dict.setdefault(vcf_file_name, {})
         per_file_dr_res_dict[vcf_file_name] = dr_res_variants

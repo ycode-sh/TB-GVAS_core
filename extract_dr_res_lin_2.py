@@ -213,8 +213,6 @@ class Prepare_lineage_dict():
         self.main_lineages_list = main_lineages_list
         self.lin_ref_main_lin_led_attr = {lineage_ref: {main_lineage: self.general_lin_dict[lineage_ref][main_lineage]
                                         for main_lineage in self.main_lineages_list if main_lineage in self.general_lin_dict[lineage_ref]} for  lineage_ref in self.lineage_reference_list}
-        
-
 
 class Assign_lineage(Prepare_lineage_dict):
     def __init__(self, general_lin_dict, lineage_reference_list, main_lineages_list, per_sample_lineage_dict, sample_name_list):
@@ -229,7 +227,7 @@ class Assign_lineage(Prepare_lineage_dict):
                                             if main_lineage in self.general_lin_dict[lineage_ref]} 
                                             for lineage_ref in self.lineage_reference_list} 
                                             for sample_name in self.sample_name_list}
-
+        
         self.sample_ref_main_lin_led_attr_long_call = self.sample_ref_main_lin_led_attr.copy()
         self.filtered_for_long_lin_call = remove_empty_conf_grad_drug_name(self.sample_ref_main_lin_led_attr_long_call)
         self.lineage_long_call = create_table_from_filtered_dict2(self.filtered_for_long_lin_call)
