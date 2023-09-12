@@ -719,6 +719,7 @@ workflow joint_genotyping {
 }
 
 // Bedtools manipulation
+params.out_dir_int = "/home/dfgmrtc/Workflows/wf-vdg"
 
 process bedtools_epi_assay {
     publishDir "${params.out_dir_int}/sub_repeat", mode: 'copy', overwrite: true
