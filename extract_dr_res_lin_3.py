@@ -26,9 +26,9 @@ drug_name_list = []
 sample_name_list_list = []
 
 for any_file in command_line_files:
-    if re.search("trimmed_sample_[0-9]*[i]?[a-z]?_intersect_adj_ann.vcf", any_file):
+    if re.search("sample_[0-9]*[i]?[a-z]?_bt_c_ann_intersect.vcf", any_file): 
         vcf_file_list.append(any_file)
-        file_name = os.path.basename(any_file.split("_intersect_adj_ann.vcf", 1)[0])  
+        file_name = os.path.basename(any_file.split("_bt_c_ann_intersect.vcf", 1)[0])  
         sample_name_list.append(file_name)
     elif re.search("sorted_[A-Z]*.tsv", any_file): 
         drug_resistance_file_list.append(any_file)

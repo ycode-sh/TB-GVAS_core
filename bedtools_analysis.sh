@@ -7,7 +7,7 @@ if [[ $3 == "epi_assays" || $3 == "all_assays" ]]; then
     bcftools view --header-only $1 > "${filename}_subtract_repeat.vcf"
     bedtools subtract -a "${1}" -b $2>> "${filename}_subtract_repeat.vcf"
 elif [[ $4 == "clin_assays" || $4 == "all_assays" ]]; then
-    filename=$(basename "$1" .vcf)
+    filename=$(basename "$1" _ann.vcf)
     bcftools view --header-only "$1" > "${filename}_intersect.vcf"
     bedtools intersect -a "$1" -b $2  $3 -wa -wb -loj -names amr_regions lineage_snps >> "${filename}_intersect.vcf"
 fi

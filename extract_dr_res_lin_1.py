@@ -25,10 +25,7 @@ def define_drug_res_dict(drug_resistance_file):
                     drug_res_dict[conf_string][gene_string][var_string].append(pos_string)
                 else:
                     drug_res_dict[conf_string][gene_string][var_string].append(pos_string)
-
-                #drug_res_dict[str(line_data[3])][str(line_data[1]).split("_", 1)[0]].append(str(line_data[1]).split("_", 1)[1])
             else:
-                #drug_res_dict[conf_string][gene_string].append(var_string)
                 drug_res_dict[conf_string][gene_string].setdefault(var_string, [])
                 drug_res_dict[conf_string][gene_string][var_string].append(pos_string)
     return drug_res_dict 
@@ -109,7 +106,7 @@ def convert_c_str(string, allele_change, variant_eff):
     spl_str = string.split(".", 1)[1].replace("*", "")
     ref = allele_change.split("/", 1)[0].lower()
     alt = allele_change.split("/", 1)[1].lower()
-    if "dup" in spl_str:      #352dupG    gid_352_del_1_gc_g, gid_352_ins_1_g_gc  This is for some special frame shift mutations
+    if "dup" in spl_str:     
         numb = str(int(re.findall(r'\d+', spl_str)[0]) + 1) # Added 1 bcos I realized snpEff miscalculates var_pos in frameshift mutations
 
         if int(len(ref)) - int(len(alt)) == 1:
@@ -218,7 +215,66 @@ def process_any_string(dr_res_variants:dict, string, allele_change, Gene_name, v
     return dr_res_variants
 
 
-def proces_a_vcf_file(a_vcf_file):    
+def minos_vcf(data, lineage_positions_dict, dr_res_variants):
+    if data[9].split(":")[0] == "0/0":  # Only screen heterogeneous variants further 
+        pass
+    elif float(data[9].split(":")[1].replace('.', '0')) < 10:   # Only screen variants with DP > 10
+        pass
+    else:
+        if data[10] == "lineage_snps":
+            if "/".join([data[3], data[4]]) == "/".join([data[15], data[16]]):
+                lineage_positions_dict.setdefault(data[1], "/".join([data[3], data[4]]))
+        elif data[10] == "amr_regions":
+            for item in range(len(data[7].split("=")[1].split(",")[:])):
+                allele_change = "/".join([data[3], data[4]])
+                ANN = data[7].split("=")[1].split(",")[item].split("|")[:]
+                if ANN[3] in data[14]:
+                    dr_res_variants.setdefault(ANN[3], {})
+                    if ANN[1] in ["frameshift_variant", "upstream_gene_variant", "downstream_gene_variant", "intergenic_region", "intragenic_variant"]:
+                        if ANN[9].split(".", 1)[0] == "c":
+                            dr_res_variants = process_any_string(dr_res_variants, ANN[9], allele_change, ANN[3], ANN[1], data[1], data[16])
+                        elif ANN[9].split(".", 1)[0] == "n":
+                            dr_res_variants = process_any_string(dr_res_variants, ANN[9], allele_change, ANN[3], ANN[1], data[1], data[16])
+                        else:
+                            print("%s is not captured by c and n string code" %{ANN[9].split(".", 1)[0]})
+                    elif ANN[1] in ["missense_variant", "synonymous_variant"]:
+                        if ANN[10].split(".", 1)[0] == "p":
+                            dr_res_variants = process_any_string(dr_res_variants, ANN[10], allele_change, ANN[3], ANN[1], data[1], data[16])
+                        else:
+                            string_id = ANN[10].split(".", 1)[0]
+                            print("%s is not captured by my code" %string_id)
+
+
+def bcftools_vcf(data, lineage_positions_dict, dr_res_variants):
+    if data[9].split(":")[0] == "0":
+        pass
+    elif float(data[7].split("DP=")[1].split(";")[0]) < 10:
+        pass
+    else:
+        if data[10] == "lineage_snps":
+            if "/".join([data[3], data[4]]) == "/".join([data[15], data[16]]):
+                lineage_positions_dict.setdefault(data[1], "/".join([data[3], data[4]]))
+        elif data[10] == "amr_regions":
+            for item in range(len(data[7].split("ANN=")[1].split(",")[:])):
+                allele_change = "/".join([data[3], data[4]])
+                ANN = data[7].split("ANN=")[1].split(",")[item].split("|")[:]
+                if ANN[3] in data[14]:
+                    dr_res_variants.setdefault(ANN[3], {})
+                    if ANN[1] in ["frameshift_variant", "upstream_gene_variant", "downstream_gene_variant", "intergenic_region", "intragenic_variant"]:
+                        if ANN[9].split(".", 1)[0] == "c":
+                            dr_res_variants = process_any_string(dr_res_variants, ANN[9], allele_change, ANN[3], ANN[1], data[1], data[16])
+                        elif ANN[9].split(".", 1)[0] == "n":
+                            dr_res_variants = process_any_string(dr_res_variants, ANN[9], allele_change, ANN[3], ANN[1], data[1], data[16])
+                        else:
+                            print("%s is not captured by c and n string code" %{ANN[9].split(".", 1)[0]})
+                    elif ANN[1] in ["missense_variant", "synonymous_variant"]:
+                        if ANN[10].split(".", 1)[0] == "p":
+                            dr_res_variants = process_any_string(dr_res_variants, ANN[10], allele_change, ANN[3], ANN[1], data[1], data[16])
+                        else:
+                            string_id = ANN[10].split(".", 1)[0]
+                            print("%s is not captured by my code" %string_id)
+
+def proces_a_vcf_file(a_vcf_file, variant_caller = "bcftools"):    
     lineage_positions_dict = {}
     dr_res_variants = {}
     with open(a_vcf_file, 'r') as vcf_file:
@@ -227,35 +283,10 @@ def proces_a_vcf_file(a_vcf_file):
                 continue
             data = line.rstrip().rsplit("\t")
 
-            if data[9].split(":")[0] == "0/0":  # Only screen heterogeneous variants further 
-                continue
-            elif float(data[9].split(":")[1].replace('.', '0')) < 10:   # Only screen variants with DP > 10
-                continue
-            else:
-                if data[10] == "lineage_snps":
-                    if "/".join([data[3], data[4]]) == "/".join([data[15], data[16]]):
-                        lineage_positions_dict.setdefault(data[1], "/".join([data[3], data[4]]))
-                elif data[10] == "amr_regions":
-                    for item in range(len(data[7].split("=")[1].split(",")[:])):
-                        allele_change = "/".join([data[3], data[4]])
-                        ANN = data[7].split("=")[1].split(",")[item].split("|")[:]
-                        if ANN[3] in data[14]:
-                            dr_res_variants.setdefault(ANN[3], {})
-                            if ANN[1] in ["frameshift_variant", "upstream_gene_variant", "downstream_gene_variant", "intergenic_region", "intragenic_variant"]:
-                                if ANN[9].split(".", 1)[0] == "c":
-                                    #print(ANN[9])
-                                    dr_res_variants = process_any_string(dr_res_variants, ANN[9], allele_change, ANN[3], ANN[1], data[1], data[16])
-                                elif ANN[9].split(".", 1)[0] == "n":
-                                    dr_res_variants = process_any_string(dr_res_variants, ANN[9], allele_change, ANN[3], ANN[1], data[1], data[16])
-                                else:
-                                    print("%s is not captured by c and n string code" %{ANN[9].split(".", 1)[0]})
-                            elif ANN[1] in ["missense_variant", "synonymous_variant"]:
-                                if ANN[10].split(".", 1)[0] == "p":
-                                    dr_res_variants = process_any_string(dr_res_variants, ANN[10], allele_change, ANN[3], ANN[1], data[1], data[16])
-                                else:
-                                    string_id = ANN[10].split(".", 1)[0]
-                                    print("%s is not captured by my code" %string_id)
-
+            if variant_caller == "bcftools":
+                bcftools_vcf(data)
+            elif variant_caller == "bcftools":
+                minos_vcf(data)
                             
     return lineage_positions_dict, dr_res_variants
                             
@@ -264,7 +295,7 @@ def process_many_vcf_files(vcf_file_list):
     per_file_dr_res_dict = {}
     per_file_lineage_dict = {}
     for a_vcf_file in vcf_file_list:
-        vcf_file_name = os.path.basename(a_vcf_file.split("_intersect_adj_ann.vcf")[0])  
+        vcf_file_name = os.path.basename(a_vcf_file.split("_bt_c_ann_intersect.vcf")[0])  
         lineage_positions_list, dr_res_variants =  proces_a_vcf_file(a_vcf_file)
         per_file_dr_res_dict.setdefault(vcf_file_name, {})
         per_file_dr_res_dict[vcf_file_name] = dr_res_variants

@@ -5,7 +5,7 @@
 
 filename=$(basename $1 .vcf)
 java -Xmx8g -jar $2  -c $3 \
-    Mycobacterium_tuberculosis_h37rv $1 > "${filename}.ann.vcf"
+    Mycobacterium_tuberculosis_h37rv $1 > "${filename}_ann.vcf"
 
     
 mv snpEff_summary.html ${filename}.snpEff_summary.html
