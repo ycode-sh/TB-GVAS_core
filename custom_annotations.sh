@@ -14,7 +14,7 @@ bgzip $5
 bgzip $7
 
 
-file_name=$(basename $9 .vcf)
+file_name=$(basename $9 .ann.vcf)
 bcftools annotate --annotations  ${3} --header-lines $4  --columns CHROM,from,to,lineage $9 > ${file_name}_la.vcf
 bcftools annotate --annotations  ${5} --header-lines $6  --columns CHROM,from,to,related_antibiotics,antibiotics_gene ${file_name}_la.vcf > ${file_name}_ar.vcf
 bcftools annotate --annotations  ${7} --header-lines $8  --columns CHROM,from,to,locus_tag,comment ${file_name}_ar.vcf > ${file_name}_vr.vcf
