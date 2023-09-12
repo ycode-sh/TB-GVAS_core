@@ -747,7 +747,7 @@ process bedtools_clin_assay {
         val bedtools_script
         path vcf_file
         val amr_genomic_interval
-        val lineage_snps.bed
+        val lineage_snps
         val assay_type
 
 
@@ -758,7 +758,7 @@ process bedtools_clin_assay {
     script:
         """
 
-        bash ${bedtools_script} ${vcf_file} ${amr_genomic_interval} ${lineage_snps.bed} ${assay_type}
+        bash ${bedtools_script} ${vcf_file} ${amr_genomic_interval} ${lineage_snps} ${assay_type}
 
         """
 }
