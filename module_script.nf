@@ -190,6 +190,8 @@ process find_16s_hit {
 process genome_assembly_se {
     publishDir "${params.out_dir_int}/Contigs", mode: 'copy', overwrite: true
     errorStrategy 'ignore'
+    cpus = 8
+    memory = 30.GB
     
     input:
         val (genome_assembly_script)
@@ -207,6 +209,8 @@ process genome_assembly_se {
 }
 
 process genome_assembly_pe {
+    cpus = 8
+    memory = 30.GB
     publishDir "${params.out_dir_int}/Contigs", mode: 'copy', overwrite: true
     errorStrategy 'ignore'
     
@@ -714,3 +718,157 @@ workflow joint_genotyping {
         
 }
 
+// Bedtools manipulation
+
+process bedtools_epi_assay {
+    publishDir "${params.out_dir_int}/sub_repeat", mode: 'copy', overwrite: true
+    input:
+        val bedtools_script
+        path vcf_file
+        val variable_region_interval
+        val assay_type
+
+    output:
+        path "*repeat.vcf"
+
+    script:
+        """
+
+        bash ${bedtools_script} ${vcf_file} ${variable_region_interval} ${assay_type}
+
+        """
+
+}
+
+
+process bedtools_clin_assay {
+    publishDir "${params.out_dir_int}/intersect", mode: 'copy', overwrite: true
+    input:
+        val bedtools_script
+        path vcf_file
+        val amr_genomic_interval
+        val lineage_snps.bed
+        val assay_type
+
+
+    output:
+        path "*intersect.vcf"
+
+
+    script:
+        """
+
+        bash ${bedtools_script} ${vcf_file} ${amr_genomic_interval} ${lineage_snps.bed} ${assay_type}
+
+        """
+}
+
+// Annotations
+
+process snpEff_annotation {
+    publishDir "${params.out_dir_int}/snpeff_annot", mode: 'copy', overwrite: true
+    input:
+        val (snpEff_annot_script) 
+        path (vcf_file) 
+        val (snpeff_jar_path)
+        val (snpeff_config_path)
+
+
+    output:
+        path "*.vcf" , emit: snpeff_annotated_vcf
+        path "*.html" 
+        path "*.txt" 
+
+
+    script:
+    """
+
+    bash ${snpEff_annot_script} ${vcf_file} ${snpeff_jar} ${snpeff_config}
+
+    """
+}
+
+process custom_annotations {
+    publishDir "${params.out_dir_int}/custom_annot", mode: 'copy', overwrite: true
+
+    input:
+        val custom_annotations_script
+        val gene_annotation_file
+        val gene_annotation_header
+        val lineage_annotation_file
+        val lineage_annotation_header
+        val amr_region_file
+        val amr_region_header
+        val variable_region_annotation_file
+        val variable_region_annotation_header
+        path vcf_file
+
+    output:
+        path "*_c_ann.vcf", emit: custom_annotated_vcf
+
+    script:
+        """
+        bash ${custom_annotations_script} ${gene_annotation_file} ${gene_annotation_header} ${lineage_annotation_file} ${lineage_annotation_header} ${amr_region_file} ${amr_region_header} ${variable_region_annotation_file} ${variable_region_annotation_header} ${vcf_file}
+        """
+
+}
+
+process generate_consensus_fasta {
+    publishDir "${params.out_dir_int}/consensus", mode: 'copy', overwrite: true
+    
+    input:
+        val(generate_consensus_script)
+        val(ref_fasta)
+        path vcf_file
+
+    output:
+        path "*consensus.vcf", emit: consensus_fasta_file
+
+    script:
+        """
+
+        bash ${generate_consensus_script} ${ref_fasta} ${vcf_file}
+
+
+        """
+}
+
+
+
+process generate_tree_data {
+
+    publishDir "${params.out_dir_int}/tree", mode: 'copy', overwrite: true
+    input:
+        path collected_fasta
+
+    output:
+        path "tree.nhx", emit: tree_data
+        path "multi-fasta_consensus.fasta", emit: multi_fasta
+        path "multi-fasta_matrix.tsv", emit: snp_matrix
+
+    script:
+        """
+        cat ${collected_fasta} >  multi-fasta_consensus.fasta
+        snp-dists -b multi-fasta_consensus > multi-fasta_matrix.tsv
+        sreformat stockholm multi-fasta_consensus > multi-fasta_consensus.stockholm
+        quicktree multi-fasta_consensus.stockholm > tree.nhx
+         
+
+        """
+}
+
+workflow phylo_tree {
+    take:
+        generate_consensus_script_wf
+        fastafile
+        vcf_file_wf
+
+    main:
+        generate_consensus_fasta(generate_consensus_script_wf, fastafile, vcf_file_wf)
+        collected_consensus = generate_consensus_fasta.out | flatten | collect
+        generate_tree_data(collected_consensus)
+
+    emit:
+        generate_tree_data.out.tree_data
+
+}
