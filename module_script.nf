@@ -869,6 +869,6 @@ workflow phylo_tree {
         generate_tree_data(collected_consensus)
 
     emit:
-        generate_tree_data.out.tree_data
+        generate_tree_data.out
 
 }
