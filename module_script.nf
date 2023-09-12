@@ -783,7 +783,7 @@ process snpEff_annotation {
     script:
     """
 
-    bash ${snpEff_annot_script} ${vcf_file} ${snpeff_jar} ${snpeff_config}
+    bash ${snpEff_annot_script} ${vcf_file} ${snpeff_jar_path} ${snpeff_config_path}
 
     """
 }
