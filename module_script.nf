@@ -850,7 +850,7 @@ process generate_tree_data {
         """
         cat ${collected_fasta} >  multi-fasta_consensus.fasta
         snp-dists -b multi-fasta_consensus.fasta > multi-fasta_matrix.tsv
-        sreformat stockholm multi-fasta_consensus > multi-fasta_consensus.stockholm
+        sreformat stockholm multi-fasta_consensus.fasta > multi-fasta_consensus.stockholm
         quicktree multi-fasta_consensus.stockholm > tree.nhx
          
 
