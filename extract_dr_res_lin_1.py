@@ -116,17 +116,15 @@ def convert_c_str(string, allele_change, variant_eff):
         dup_sn_indel = "_".join([numb, dup_type, "1", ref, alt])
         
     elif re.search("^[-]?[0-9]*[a-zA-Z][>][a-zA-Z]$", spl_str):  
-        #print("Yes o")
         pattern = r'^([-]?[0-9]*)([a-zA-Z])(>)([a-zA-Z])$'
         match = re.match(pattern, spl_str)
-        #print(match)
+        
         if match:
             snp =  "".join([match.group(2).lower(), match.group(1), match.group(4).lower()])
 
-    elif re.search("^[-]?[0-9]*(del)?(ins)?[a-zA-Z]$", spl_str):   #1471926_ins_2   103delG
-        #print("Is getting serious")
+    elif re.search("^[-]?[0-9]*(del)?(ins)?[a-zA-Z]$", spl_str):   
         pattern = r'^([-]?[0-9]*)((del)?(ins)?)([a-zA-Z])$'
-        #print(pattern)
+        
         match = re.match(pattern, spl_str)
         if match:
             if variant_eff == "frameshift_variant":
@@ -134,9 +132,9 @@ def convert_c_str(string, allele_change, variant_eff):
                 sn_indel = "_".join([modified_pos, match.group(2), "1", ref, alt])
             else:
                 sn_indel = "_".join([match.group(1), match.group(2), "1", ref, alt])
-            #print(sn_indel)
-    else:        # 355_356delGC
-        #print("This is going to be serious")
+            
+    else:        
+        
         re.search("^[-]?[0-9]*_[-]?[0-9]*(del)?(ins)?[a-zA-Z]*$", spl_str)
         spl_str1 = spl_str.split("_", 1)[1]   # I have been struggling with which one to take, the first or second?
         spl_str1 = re.findall(r'\d+', spl_str1)[0]
@@ -151,7 +149,7 @@ def convert_c_str(string, allele_change, variant_eff):
                 raise TypeError("Variant %s type not known" %match.group(2))
             nN = len(spl_str2)
             if variant_eff == "frameshift_variant":
-                modified_pos = str(int(spl_str1) + 1)   # Because snpEff miscalculates frameshifts mutation positions
+                modified_pos = str(int(spl_str1) + 1)   # Added +1  Because snpEff miscalculates frameshifts mutation positions
                 indels = "_".join([modified_pos, match.group(2), str(nN), ref, alt])
             else:
                 indels = "_".join([spl_str1, match.group(2), str(nN), ref, alt])
@@ -173,8 +171,6 @@ def convert_n_string(string):
         match = re.match(pattern, string)
         if match:
             int_snps =  "".join([match.group(2).lower()])
-            #print(int_snps)
-    #print(int_snps)
     return int_snps
 
 def modify_drug_res_dict(dr_res_variants, var, allele_change, Gene_name, variant_eff, var_pos, exp_drugs):
@@ -215,10 +211,10 @@ def process_any_string(dr_res_variants:dict, string, allele_change, Gene_name, v
     return dr_res_variants
 
 
-def minos_vcf(data, lineage_positions_dict, dr_res_variants):
+def minos_vcf(data, lineage_positions_dict, dr_res_variants, dp_cov):
     if data[9].split(":")[0] == "0/0":  # Only screen heterogeneous variants further 
         pass
-    elif float(data[9].split(":")[1].replace('.', '0')) < 10:   # Only screen variants with DP > 10
+    elif float(data[9].split(":")[1].replace('.', '0')) < dp_cov:   # Only screen variants with DP > 10
         pass
     else:
         if data[10] == "lineage_snps":
@@ -245,10 +241,10 @@ def minos_vcf(data, lineage_positions_dict, dr_res_variants):
                             print("%s is not captured by my code" %string_id)
 
 
-def bcftools_vcf(data, lineage_positions_dict, dr_res_variants):
+def bcftools_vcf(data, lineage_positions_dict, dr_res_variants, dp_cov):
     if data[9].split(":")[0] == "0":
         pass
-    elif float(data[7].split("DP=")[1].split(";")[0]) < 10:
+    elif float(data[7].split("DP=")[1].split(";")[0]) < dp_cov:
         pass
     else:
         if data[10] == "lineage_snps":
@@ -274,7 +270,7 @@ def bcftools_vcf(data, lineage_positions_dict, dr_res_variants):
                             string_id = ANN[10].split(".", 1)[0]
                             print("%s is not captured by my code" %string_id)
 
-def proces_a_vcf_file(a_vcf_file, variant_caller = "bcftools"):    
+def proces_a_vcf_file(a_vcf_file, variant_caller, dp_cov):    
     lineage_positions_dict = {}
     dr_res_variants = {}
     with open(a_vcf_file, 'r') as vcf_file:
@@ -284,19 +280,19 @@ def proces_a_vcf_file(a_vcf_file, variant_caller = "bcftools"):
             data = line.rstrip().rsplit("\t")
 
             if variant_caller == "bcftools":
-                bcftools_vcf(data, lineage_positions_dict, dr_res_variants)
+                bcftools_vcf(data, lineage_positions_dict, dr_res_variants, dp_cov)
             elif variant_caller == "minos":
-                minos_vcf(data, lineage_positions_dict, dr_res_variants)
+                minos_vcf(data, lineage_positions_dict, dr_res_variants, dp_cov)
                             
     return lineage_positions_dict, dr_res_variants
                             
                         
-def process_many_vcf_files(vcf_file_list):
+def process_many_vcf_files(vcf_file_list, variant_caller, dp_cov):
     per_file_dr_res_dict = {}
     per_file_lineage_dict = {}
     for a_vcf_file in vcf_file_list:
         vcf_file_name = os.path.basename(a_vcf_file.split("_bt_intersect.vcf")[0])
-        lineage_positions_list, dr_res_variants =  proces_a_vcf_file(a_vcf_file)
+        lineage_positions_list, dr_res_variants =  proces_a_vcf_file(a_vcf_file, variant_caller, dp_cov)
         per_file_dr_res_dict.setdefault(vcf_file_name, {})
         per_file_dr_res_dict[vcf_file_name] = dr_res_variants
         per_file_lineage_dict.setdefault(vcf_file_name, {})

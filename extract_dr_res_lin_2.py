@@ -160,18 +160,12 @@ class Assign_drug_res(Confidence_grading, Sample_class):
         self.copied_attr_for_long_dr_call =  self.samplename_drug_led_dr_res_prof_attr.copy()
         self.filtered_attr_for_long_dr_call = remove_empty_conf_grad_drug_name(self.copied_attr_for_long_dr_call)
 
-        #### Merge calls (NOT working yet as should)
-        ###self.merged_dr_long_calls = merge_filtered_dict(self.filtered_attr_for_long_dr_call ,self.samplename_drug_led_int_var_attr)
-
-        #print(self.merged_dr_long_calls)
-        #print(self.filtered_attr_for_long_dr_call)
+        
         self.long_table_dr_call = create_table_from_filtered_dict(self.filtered_attr_for_long_dr_call)
 
-        #register = {"sample_name":os.path.basename(sample_name) for sample_name in self.filtered_attr_for_long_dr_call.keys()
-        #}
-        #json.dump()
+        
         self.register = json.dumps(self.filtered_attr_for_long_dr_call)
-        #print(self.register)
+        
 
     def __call__(self, drug_names:list, sample_names:list,confidence_list:list, return_only_p_c_call=False):
         self.filtered_attr_for_short_dr_call = self.filtered_attr_for_long_dr_call.copy()

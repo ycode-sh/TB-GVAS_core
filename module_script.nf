@@ -873,3 +873,49 @@ workflow phylo_tree {
         generate_tree_data.out.tree_data
 
 }
+
+
+process drug_res_lin_profiling {
+
+    input:
+        val main_extr_scipt
+        path collected_preped_vcfs
+        path collected_sorted_dr_res_catalogue
+        val prepped_lineage_file
+        val variant_caller
+        val dp_cov
+
+    output:
+        path "dr_res.json", emit: dr_res_json
+        path "dr_res_int.json", emit: dr_res_int_json
+        path "lineage.json", emit: lineage_json
+        path "dr_res_lin_summary.txt" 
+
+    script:
+        """
+
+        python ${main_extr_scipt} ${collected_preped_vcfs} ${collected_sorted_dr_res_catalogue} ${prepped_lineage_file} ${variant_caller} ${dp_cov} > "dr_res_lin_summary.txt"
+
+        """
+}
+
+process format_dr_lin_in_R {
+
+    input:
+        val main_formatting_script
+        path dr_res_json
+        path dr_res_int_json
+        path lineage_json
+
+    output:
+        path "detailed_drug_resistance_profile.tsv"
+        path "short_drug_resistance_profile.tsv"
+        path "detailed_lineage_assignments.tsv"
+
+    script:
+        """
+        Rscript ${main_formatting_script} ${dr_res_json} ${dr_res_int_json} ${lineage_json}
+
+        """
+
+}
