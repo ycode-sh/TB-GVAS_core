@@ -5,7 +5,7 @@
 
 # $1 = referenece_fasta, $2 = vcf_file
 
-filename=$(basename $2 .vcf)
+filename=$(basename $2 _subtract_repeat.vcf) 
 
 bcftools view --exclude-types indels,mnps,bnd,other --no-update --trim-alt-alleles --exclude 'GT="0/0"' --exclude-uncalled $2 --output "${filename}_snps.vcf"
 

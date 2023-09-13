@@ -875,7 +875,7 @@ workflow phylo_tree {
 
 
 process drug_res_lin_profiling {
-
+    publishDir "${params.out_dir_int}/Json", mode: 'copy', overwrite: true
     input:
         val main_extr_scipt
         path collected_preped_vcfs
@@ -883,6 +883,8 @@ process drug_res_lin_profiling {
         val prepped_lineage_file
         val variant_caller
         val dp_cov
+        val dr_res_scrpt_2
+        val dr_res_script_3
 
     output:
         path "dr_res.json", emit: dr_res_json
@@ -899,7 +901,7 @@ process drug_res_lin_profiling {
 }
 
 process format_dr_lin_in_R {
-
+    publishDir "${params.out_dir_int}/formatted_dr_lin_results", mode: 'copy', overwrite: true
     input:
         val main_formatting_script
         path dr_res_json
@@ -913,7 +915,7 @@ process format_dr_lin_in_R {
 
     script:
         """
-        Rscript ${main_formatting_script} ${dr_res_json} ${dr_res_int_json} ${lineage_json}
+        Rscript ${main_formatting_script} "--files" ${dr_res_json} ${dr_res_int_json} ${lineage_json}
 
         """
 

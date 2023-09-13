@@ -214,7 +214,7 @@ def process_any_string(dr_res_variants:dict, string, allele_change, Gene_name, v
 def minos_vcf(data, lineage_positions_dict, dr_res_variants, dp_cov):
     if data[9].split(":")[0] == "0/0":  # Only screen heterogeneous variants further 
         pass
-    elif float(data[9].split(":")[1].replace('.', '0')) < dp_cov:   # Only screen variants with DP > 10
+    elif float(data[9].split(":")[1].replace('.', '0')) < float(dp_cov):   # Only screen variants with DP > 10
         pass
     else:
         if data[10] == "lineage_snps":
@@ -244,7 +244,7 @@ def minos_vcf(data, lineage_positions_dict, dr_res_variants, dp_cov):
 def bcftools_vcf(data, lineage_positions_dict, dr_res_variants, dp_cov):
     if data[9].split(":")[0] == "0":
         pass
-    elif float(data[7].split("DP=")[1].split(";")[0]) < dp_cov:
+    elif float(data[7].split("DP=")[1].split(";")[0]) < float(dp_cov):
         pass
     else:
         if data[10] == "lineage_snps":
