@@ -56,7 +56,7 @@ def create_table_from_filtered_dict2(filtered_drug_res_dict):
     if not table:
         return None
     
-    headers = ["Sample_name"] + ["Reference"] + ["Lineage"] + ["Sub_lineage"] + ["position"] + ["Allele_change"]
+    headers = ["Sample_name"] + ["Reference"] + ["Lineage"] + ["Sub_lineage"] + ["position"] + ["Allele_change, lsp, spoligptype"]
     return tabulate(table, headers, tablefmt="grid")      
 
 class Drug_name_List():
@@ -207,13 +207,15 @@ class Prepare_lineage_dict():
         self.main_lineages_list = main_lineages_list
         self.lin_ref_main_lin_led_attr = {lineage_ref: {main_lineage: self.general_lin_dict[lineage_ref][main_lineage]
                                         for main_lineage in self.main_lineages_list if main_lineage in self.general_lin_dict[lineage_ref]} for  lineage_ref in self.lineage_reference_list}
+        #print(self.lin_ref_main_lin_led_attr)
 
 class Assign_lineage(Prepare_lineage_dict):
     def __init__(self, general_lin_dict, lineage_reference_list, main_lineages_list, per_sample_lineage_dict, sample_name_list):
         Prepare_lineage_dict.__init__(self, general_lin_dict, lineage_reference_list, main_lineages_list)
         self.per_sample_lineage_dict = per_sample_lineage_dict
         self.sample_name_list = sample_name_list
-        self.sample_ref_main_lin_led_attr = {sample_name:{lineage_ref:{main_lineage:{sub_lineage:{position:self.per_sample_lineage_dict[sample_name][position] 
+    
+        self.sample_ref_main_lin_led_attr = {sample_name:{lineage_ref:{main_lineage:{sub_lineage:{position:[self.per_sample_lineage_dict[sample_name][position], self.general_lin_dict[lineage_ref][main_lineage][sub_lineage][position][1], self.general_lin_dict[lineage_ref][main_lineage][sub_lineage][position][2]] 
                                             for position in  self.lin_ref_main_lin_led_attr[lineage_ref][main_lineage][sub_lineage].keys()
                                             if position in self.per_sample_lineage_dict[sample_name].keys()} 
                                             for sub_lineage in self.lin_ref_main_lin_led_attr[lineage_ref][main_lineage].keys()} 

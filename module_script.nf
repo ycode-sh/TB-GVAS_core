@@ -1,10 +1,4 @@
 // 1. Trimming with trimmomatic
-// Inputs: reads, adapters; output:trimmed paired and unpaired reads
-
-//reads = "reads"
-//reads_pair_id = "pair_id"
-
-
 
 
 process trim_fastq_se {    
@@ -804,7 +798,7 @@ process custom_annotations {
         path vcf_file
 
     output:
-        path "*_c_ann.vcf", emit: custom_annotated_vcf
+        path "*c_ann.vcf", emit: custom_annotated_vcf
 
     script:
         """
@@ -874,33 +868,65 @@ workflow phylo_tree {
 }
 
 
-process drug_res_lin_profiling {
-    publishDir "${params.out_dir_int}/Json", mode: 'copy', overwrite: true
+process drug_res_profiling {
+    publishDir "${params.out_dir_int}/Drug_resistance_profiling", mode: 'copy', overwrite: true
     input:
-        val main_extr_scipt
+        val dr_profiling_script
         path collected_preped_vcfs
         path collected_sorted_dr_res_catalogue
+        val variant_caller
+        val dp_cov
+        val dr_res_scrpt_2
+        val dr_res_script_3
+        val dr_formatting_script
+
+    output:
+        path "all_dr_variants.json", emit: dr_res_json
+        path "intergenic_dr_variants.json", emit: dr_res_int_json
+        path "dr_profiling_summary.txt"
+        path "detailed_drug_resistance_profile.tsv"
+        path "short_drug_resistance_profile.tsv"
+
+    script:
+        """
+
+        python ${dr_profiling_script} ${collected_preped_vcfs} ${collected_sorted_dr_res_catalogue} ${variant_caller} ${dp_cov} > "dr_profiling_summary.txt"
+
+        Rscript ${dr_formatting_script} --files "all_dr_variants.json" "intergenic_dr_variants.json"
+        
+        """
+}
+
+process snp_typing {
+    publishDir "${params.out_dir_int}/Snp_typing", mode: 'copy', overwrite: true
+
+    input:
+        val snp_typing_python_script
+        path collected_preped_vcfs
         val prepped_lineage_file
         val variant_caller
         val dp_cov
         val dr_res_scrpt_2
         val dr_res_script_3
+        val snp_typing_R_formating_script
 
+    
     output:
-        path "dr_res.json", emit: dr_res_json
-        path "dr_res_int.json", emit: dr_res_int_json
         path "lineage.json", emit: lineage_json
-        path "dr_res_lin_summary.txt" 
-
+        path "snp_typing_summary.txt"
+        path "detailed_lineage_assignments.tsv"
+    
     script:
-        """
+    """
 
-        python ${main_extr_scipt} ${collected_preped_vcfs} ${collected_sorted_dr_res_catalogue} ${prepped_lineage_file} ${variant_caller} ${dp_cov} > "dr_res_lin_summary.txt"
+    python ${snp_typing_python_script} ${collected_preped_vcfs} ${prepped_lineage_file} ${variant_caller} ${dp_cov} > snp_typing_summary.txt
 
-        """
+    Rscript ${snp_typing_R_formating_script} "--files" "lineage.json"
+    """
 }
 
-process format_dr_lin_in_R {
+
+/*process format_dr_lin_in_R {
     publishDir "${params.out_dir_int}/formatted_dr_lin_results", mode: 'copy', overwrite: true
     input:
         val main_formatting_script
@@ -920,3 +946,4 @@ process format_dr_lin_in_R {
         """
 
 }
+*/

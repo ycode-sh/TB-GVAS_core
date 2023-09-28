@@ -59,9 +59,8 @@ fill_res_data_frame <- function(dr_res_df){
                          conf_grading = character(), associated_drug = character())
 
     dr_res_result_list <- fill_res_vectors(dr_res_df)
-    #print(dr_res_result_list[[vector_length]])
     if (length(unique(dr_res_result_list[[1]])) == 1){
-        #print("Correct")
+    
         empty_res_dataframe <- add_row(empty_res_dataframe, .rows = length(dr_res_result_list[[2]]))
         empty_res_dataframe$sample_name <- dr_res_result_list[[2]]
         empty_res_dataframe$gene_name <- dr_res_result_list[[5]] 
@@ -71,9 +70,7 @@ fill_res_data_frame <- function(dr_res_df){
         empty_res_dataframe$allele_change <- dr_res_result_list[[9]]
         empty_res_dataframe$conf_grading <- dr_res_result_list[[4]]
         empty_res_dataframe$associated_drug <- dr_res_result_list[[3]]
-    } else {
-        #print("something is wrong somewhere")
-    }
+    } 
     filled_res_data_frame <- empty_res_dataframe
     return(filled_res_data_frame)
 
@@ -151,8 +148,16 @@ uniq_sample_names <- function(dr_res_full_df){
     return(all_sample_names)
 }
 
+sort_ass_drug_str <- function(ass_drugs){
+    vector_ass_dr <- unlist(strsplit(ass_drugs, ","))
+    sorted_indices <- order(sapply(vector_ass_dr, function(x) substr(x, 1, 1)))
+    sorted_values <- vector_ass_dr[sorted_indices]
+    sorted_ass_drugs <- paste(sorted_values, collapse = ",")
+    return(sorted_ass_drugs)
+}
 curate_short_dr_profile <- function(all_sample_names, sample_name_ass_drug_named_list, named_pattern_list, unnamed_pattern_list){
     
+
     dr_res_short_df <- tibble(sample_name = character(), ass_res_drugs = character(), who_drug_res_profile = character())
     
     dr_res_short_df <- add_row(dr_res_short_df, .rows = length(all_sample_names))
@@ -160,9 +165,10 @@ curate_short_dr_profile <- function(all_sample_names, sample_name_ass_drug_named
     for (no in 1:length(all_sample_names)){
         if (all_sample_names[no] %in% names(sample_name_ass_drug_named_list)){ # i.e if a sample name is present in the keys of our drug res names list
             dr_res_short_df$sample_name[no] <- all_sample_names[no]
-            ass_drugs <- paste(unique(sample_name_ass_drug_named_list[[all_sample_names[no]]]), collapse = ", ")  # Collaps all drugs associated with that sample_name in our drug res named list to a comma separated list
+            ass_drugs <- paste(unique(sample_name_ass_drug_named_list[[all_sample_names[no]]]), collapse = ",")  # Collaps all drugs associated with that sample_name in our drug res named list to a comma separated list
+            # Sort the ass_drugs string
+            ass_drugs <- sort_ass_drug_str(ass_drugs)
             dr_res_short_df$ass_res_drugs[no] <- sprintf("Resistant to %s", ass_drugs) # Include the ass comma separated list into the row corresponding to the ass_drugs column
-        
             dr_res_short_df$who_drug_res_profile[no] <- dr_res_matching_func(unnamed_pattern_list, ass_drugs, named_pattern_list)
         } else {
             dr_res_short_df$sample_name[no] <- all_sample_names[no]
@@ -208,6 +214,7 @@ create_short_dr_profile <- function(dr_res_table, dr_res_int_table){
 ### Extract candidates from lineage_profile_table and append to empty vectors
 
 fill_lin_vectors <- function(lineage_profile_table){
+    #print(lineage_profile_table)
     lin_sample_names <- names(lineage_profile_table)
     lin_names_vec <- character()
     reference_vec <- character()
@@ -215,29 +222,35 @@ fill_lin_vectors <- function(lineage_profile_table){
     sub_lineage_vec <- character()
     var_position_vec <- character()
     lin_allele_change_vec <- character()
+    lsp_vec <- character()
+    spoligotype_vec <- character()
     for (sample_name in lin_sample_names){
         for (reference in names(lineage_profile_table[[sample_name]])){
             for (lineage in names(lineage_profile_table[[sample_name]][[reference]])){
                 for (sub_lineage in names(lineage_profile_table[[sample_name]][[reference]][[lineage]])){
                     for (var_pos in names(lineage_profile_table[[sample_name]][[reference]][[lineage]][[sub_lineage]])){
-                        for (allele_change in lineage_profile_table[[sample_name]][[reference]][[lineage]][[sub_lineage]][[var_pos]]){
+                            allele_change <- lineage_profile_table[[sample_name]][[reference]][[lineage]][[sub_lineage]][[var_pos]][1]
+                            lsp <- lineage_profile_table[[sample_name]][[reference]][[lineage]][[sub_lineage]][[var_pos]][2]
+                            spoligotype <- lineage_profile_table[[sample_name]][[reference]][[lineage]][[sub_lineage]][[var_pos]][3]
                             lin_names_vec <- c(lin_names_vec, sample_name)
                             reference_vec <- c(reference_vec, reference)
                             lineage_vec <- c(lineage_vec, lineage)
                             sub_lineage_vec <- c(sub_lineage_vec, sub_lineage)
                             var_position_vec <- c(var_position_vec, var_pos)
                             lin_allele_change_vec <- c(lin_allele_change_vec, allele_change)
-                        }
+                            lsp_vec <- c(lsp_vec, lsp)
+                            spoligotype_vec <- c(spoligotype_vec, spoligotype)
+                        
                     }
                 }
             }
         }
     }
 
+
     lineage_vector_length <- c(length(lin_names_vec), length(reference_vec), length(lineage_vec), length(sub_lineage_vec), 
-                           length(var_position_vec),
-                           length(lin_allele_change_vec))
-    lin_result_list <- list(lineage_vector_length, lin_names_vec, reference_vec, lineage_vec, sub_lineage_vec, var_position_vec, lin_allele_change_vec)
+                           length(var_position_vec), length(lsp_vec), length(spoligotype_vec), length(lin_allele_change_vec))
+    lin_result_list <- list(lineage_vector_length, lin_names_vec, reference_vec, lineage_vec, sub_lineage_vec, var_position_vec, lin_allele_change_vec, lsp_vec, spoligotype_vec)
     return(lin_result_list)
 }
 
@@ -246,7 +259,7 @@ fill_lin_dataframe <- function(lineage_profile_table){
     
     # Instatiate an empty dataframe
     empty_lin_dataframe <- tibble(sample_name = character(), reference = character(), lineage = character(), 
-                                   sub_lineage = character(), allele_change = character(), var_position = character())
+                                   sub_lineage = character(), allele_change = character(), lsp = character(), spoligotype = character(), var_position = character())
 
     lin_result_list <- fill_lin_vectors(lineage_profile_table)
     if (length(unique(lin_result_list[[1]])) == 1){
@@ -256,11 +269,13 @@ fill_lin_dataframe <- function(lineage_profile_table){
         empty_lin_dataframe$lineage <- lin_result_list[[4]]
         empty_lin_dataframe$sub_lineage <- lin_result_list[[5]]
         empty_lin_dataframe$allele_change <- lin_result_list[[7]]
+        empty_lin_dataframe$lsp <- lin_result_list[[8]]
+        empty_lin_dataframe$spoligotype <- lin_result_list[[9]]
         empty_lin_dataframe$var_position <- lin_result_list[[6]]
     }
 
     filled_lin_dataframe <- empty_lin_dataframe
-
+    
     return(filled_lin_dataframe)
 }
 

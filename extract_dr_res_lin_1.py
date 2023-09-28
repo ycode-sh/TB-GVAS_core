@@ -42,28 +42,7 @@ def make_per_drug_res_dict(drug_resistance_file_list):
     return per_drug_dr_res_dict
 
 
-# 2B: Pepare lineage annotation files
-
-def define_lin_dict(lineage_file_list):
-    lineage_file = lineage_file_list[0]
-    lineage_reference_list = ["coll_2014", "freschi_2020", "shitikov_2017"]
-    lin_dict = {lin_ref:{} for lin_ref in lineage_reference_list}
-
-    with open(lineage_file, 'r') as lin_file:
-        for line in lin_file:
-            data = line.rstrip().rsplit("\t")
-            lineage_main = str(data[2]).split(".", 1)[0]
-            if lineage_main not in lin_dict[data[1]].keys():
-                lin_dict[data[1]].setdefault(lineage_main, {})
-                lin_dict[data[1]][lineage_main].setdefault(data[2], {})
-                lin_dict[data[1]][lineage_main][data[2]].setdefault(str(data[0]), str(data[3]))
-                
-            else:
-                lin_dict[data[1]][lineage_main].setdefault(data[2], {})
-                lin_dict[data[1]][lineage_main][data[2]].setdefault(str(data[0]), str(data[3]))
-                
-    return lin_dict
-
+# 2B: 
 
 # 3. Parse VCF files
 
@@ -182,16 +161,12 @@ def modify_drug_res_dict(dr_res_variants, var, allele_change, Gene_name, variant
     dr_res_variants[Gene_name].setdefault(var, [])
     dr_res_variants[Gene_name][var].append(details_list)
     
-    #dr_res_variants[Gene_name][var].append(variant_eff)
-    #dr_res_variants[Gene_name][var].append(var_pos)
-    #dr_res_variants[Gene_name][var].append(allele_change)
-    #dr_res_variants[Gene_name][var].append(exp_drugs)
     return dr_res_variants
 
 def process_any_string(dr_res_variants:dict, string, allele_change, Gene_name, variant_eff, var_pos, exp_drugs):
     function_level_dict = {"frameshift_variant":"run_c_string_func", "missense_variant":"run_p_string_func",
                             "synonymous_variant":"run_p_string_func", "upstream_gene_variant": "run_c_string_func",
-                            "downstream_gene_variant":"run_c_string_func",
+                            "downstream_gene_variant":"run_c_string_func", "stop_gained": "run_p_string_func",
                             "intergenic_region":"run_n_string_func", "intragenic_variant":"run_n_string_func"}
 
     if function_level_dict[variant_eff] == "run_p_string_func": 
@@ -205,7 +180,7 @@ def process_any_string(dr_res_variants:dict, string, allele_change, Gene_name, v
         dr_res_variants = modify_drug_res_dict(dr_res_variants, var, allele_change, Gene_name, variant_eff,  var_pos, exp_drugs)
     
     else:
-        print("This varient_effect:%s is not captured by my code" %variant_eff)
+        print("This varient_effect:%s is not captured by our software" %variant_eff)
     
 
     return dr_res_variants
@@ -233,7 +208,7 @@ def minos_vcf(data, lineage_positions_dict, dr_res_variants, dp_cov):
                             dr_res_variants = process_any_string(dr_res_variants, ANN[9], allele_change, ANN[3], ANN[1], data[1], data[16])
                         else:
                             print("%s is not captured by c and n string code" %{ANN[9].split(".", 1)[0]})
-                    elif ANN[1] in ["missense_variant", "synonymous_variant"]:
+                    elif ANN[1] in ["missense_variant", "synonymous_variant", "stop_gained"]:
                         if ANN[10].split(".", 1)[0] == "p":
                             dr_res_variants = process_any_string(dr_res_variants, ANN[10], allele_change, ANN[3], ANN[1], data[1], data[16])
                         else:
@@ -248,7 +223,8 @@ def bcftools_vcf(data, lineage_positions_dict, dr_res_variants, dp_cov):
         pass
     else:
         if data[10] == "lineage_snps":
-            if "/".join([data[3], data[4]]) == "/".join([data[16], data[17]]):
+            # if "/".join([data[3], data[4]]) == "/".join([data[16], data[17]]): This was deprecated because of new lineage additions in order to ensure continuity
+            if data[4] == data[17]:
                 lineage_positions_dict.setdefault(data[1], "/".join([data[3], data[4]]))
         elif data[10] == "amr_regions":
             for item in range(len(data[7].split("ANN=")[1].split(",")[:])):
@@ -263,7 +239,7 @@ def bcftools_vcf(data, lineage_positions_dict, dr_res_variants, dp_cov):
                             dr_res_variants = process_any_string(dr_res_variants, ANN[9], allele_change, ANN[3], ANN[1], data[1], data[16])
                         else:
                             print("%s is not captured by c and n string code" %{ANN[9].split(".", 1)[0]})
-                    elif ANN[1] in ["missense_variant", "synonymous_variant"]:
+                    elif ANN[1] in ["missense_variant", "synonymous_variant", "stop_gained"]:
                         if ANN[10].split(".", 1)[0] == "p":
                             dr_res_variants = process_any_string(dr_res_variants, ANN[10], allele_change, ANN[3], ANN[1], data[1], data[16])
                         else:
