@@ -408,7 +408,8 @@ STM	rpsL_K123!		Uncertain_significance
 STM	rpsL_K43M		Uncertain_significance
 STM	rpsL_K43N		Uncertain_significance
 STM	rpsL_K43R		Assoc_w_R
-STM	rpsL_K43R_rrs_a1401g		combo
+STM	rpsL_K43R		combo
+STM	rrs_a1401g		combo
 STM	rpsL_K43T		Uncertain_significance
 STM	rpsL_K88M		Assoc_w_R
 STM	rpsL_K88Q		Assoc_w_R_Interim

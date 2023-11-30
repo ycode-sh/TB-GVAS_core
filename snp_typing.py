@@ -28,9 +28,9 @@ variant_caller = ""
 dp_cov = ""
 
 for any_file in command_line_files:
-    if re.search("sample_[0-9]*[i]?[a-z]?_bt_intersect.vcf", any_file): 
+    if re.search("sample_[0-9]*[i]?[a-z]?_intersect.vcf", any_file): 
         vcf_file_list.append(any_file)
-        file_name = os.path.basename(any_file.split("_bt_intersect.vcf", 1)[0])  
+        file_name = os.path.basename(any_file.split("_intersect.vcf", 1)[0])  
         sample_name_list.append(file_name)
     elif re.search("lineage_snp_[0-9]*.tsv", any_file):
         lineage_file_list.append(any_file)

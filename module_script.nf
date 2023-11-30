@@ -2,7 +2,7 @@
 
 
 process trim_fastq_se {    
-    publishDir "${params.out_dir_int}/Trimmed_reads", mode: 'copy', overwrite: true
+    //publishDir "${params.out_dir_int}/Trimmed_reads", mode: 'copy', overwrite: true
     
     input:
     val(trim_sample_script)
@@ -26,7 +26,7 @@ process trim_fastq_se {
 }
 
 process trim_fastq_pe {    
-    publishDir "${params.out_dir_int}/Trimmed_reads", mode: 'copy', overwrite: true
+    //publishDir "${params.out_dir_int}/Trimmed_reads", mode: 'copy', overwrite: true
     
     input:
     val(trim_sample_script)
@@ -248,7 +248,9 @@ workflow genome_assembly {
 // 5. Map reads to Reference
 // Emit sam with either bwa or minimap
 process emit_sam_se {
-    publishDir "${params.out_dir_int}/Sam_files", mode: 'copy', overwrite: true
+    //publishDir "${params.out_dir_int}/Sam_files", mode: 'copy', overwrite: true
+    cpus = 8
+    memory = 30.GB
     input:
         val (emit_sam_script)
         path(se_reads)
@@ -269,7 +271,9 @@ process emit_sam_se {
 }
 
 process emit_sam_pe {
-    publishDir "${params.out_dir_int}/Sam_files", mode: 'copy', overwrite: true
+    //publishDir "${params.out_dir_int}/Sam_files", mode: 'copy', overwrite: true
+    cpus = 8
+    memory = 30.GB
     input:
         val (emit_sam_script)
         tuple val(reads_pair_id), path(pe_reads)
@@ -416,6 +420,7 @@ process parse_kraken {
 
 process bcf_call {
     publishDir "${params.out_dir_int}/bcf_call", mode: 'copy', overwrite: true
+    errorStrategy 'ignore'
     input:
     val bcf_call_script
     path aligned_sam
@@ -446,7 +451,8 @@ process bcf_call {
 
 
 process gatk_call {
-    publishDir "${params.out_dir_int}/gatk_call", mode: 'copy', overwrite: true
+    //publishDir "${params.out_dir_int}/gatk_call", mode: 'copy', overwrite: true
+    errorStrategy 'ignore'
     input:
         val gatk_call_script
         path coord_sort_bam
@@ -466,7 +472,8 @@ process gatk_call {
 }
 
 process gatk_call_gvcf {
-    publishDir "${params.out_dir_int}/gvcf_call", mode: 'copy', overwrite: true
+    //publishDir "${params.out_dir_int}/gvcf_call", mode: 'copy', overwrite: true
+    errorStrategy 'ignore'
     input:
         val gatk_call_script
         path coord_sort_bam
@@ -488,6 +495,7 @@ process gatk_call_gvcf {
 
 process gatk_joint_genotyping {
     publishDir "${params.out_dir_int}/gatk_joint_call", mode: 'copy', overwrite: true
+    errorStrategy 'ignore'
     input:
         val gatk_joint_geno_script
         path flattened_gvcfs
@@ -514,7 +522,7 @@ process gatk_joint_genotyping {
 
 //read1= $1 read2= $2 fastafile = $3 vcf_1 = $4 vcf_2 = $5 samplename = $6
 process adjudicate_var_pe {
-    publishDir "${params.out_dir_int}/Minos_call", mode: 'copy', overwrite: true
+    //publishDir "${params.out_dir_int}/Minos_call", mode: 'copy', overwrite: true
     errorStrategy 'ignore'
 
     input:
@@ -523,20 +531,22 @@ process adjudicate_var_pe {
     tuple val(sample_id), path(reads), path(vcf_1, stageAs: 'ist_vcf'), path(vcf_2)
     //tuple val(sample_id), path(items)
     val reference  
-    
+    val (frs)
+    val (gcp)
     
     output:
     path  "*_minos.vcf", emit: minos_call_out_vcf
 
     script:
     """
-    bash ${var_adj_script} ${input_read_type} ${sample_id} ${reads[0]} ${reads[1]} ${vcf_1} ${vcf_1} ${reference}
+    bash ${var_adj_script} ${input_read_type} ${sample_id} ${reads[0]} ${reads[1]} ${vcf_1} ${vcf_1} ${reference} ${frs} ${gcp}
+
 
     """
 }
 
 process adjudicate_var_se {
-    publishDir "${params.out_dir_int}/Minos_call", mode: 'copy', overwrite: true
+    //publishDir "${params.out_dir_int}/Minos_call", mode: 'copy', overwrite: true
     errorStrategy 'ignore'
 
   
@@ -546,6 +556,8 @@ process adjudicate_var_se {
     path (se_reads) 
     val reference 
     tuple val(sample_id), path(vcf_1, stageAs: 'ist_vcf'), path(vcf_2)
+    val (frs)
+    val (gcp)
     
     
     output:
@@ -553,7 +565,7 @@ process adjudicate_var_se {
 
     script:
     """
-    bash ${var_adj_script} ${input_read_type} ${se_reads} ${reference} ${vcf_1} ${vcf_2} 
+    bash ${var_adj_script} ${input_read_type} ${se_reads} ${reference} ${vcf_1} ${vcf_2} ${frs} ${gcp}
 
     """
 }
@@ -566,6 +578,10 @@ workflow adjudicate_var {
         var_adj_script_wf
         input_read_type
         fastafile
+        min_frs
+        min_gcp
+
+
 
     main:
         if (params.in_data_type != "minion_ont_reads"){
@@ -574,10 +590,10 @@ workflow adjudicate_var {
             joined_vcfs = bcf_call_tuple.join(gatk_call_tuple)
             if (params.in_data_type == "pe_illumina_reads") {
                 reads_vcf_files = trimmed_reads.combine(joined_vcfs, by:0)
-                adjudicate_var_pe(var_adj_script_wf, input_read_type, reads_vcf_files, fastafile)
+                adjudicate_var_pe(var_adj_script_wf, input_read_type, reads_vcf_files, fastafile, min_frs, min_gcp)
                 adj_var = adjudicate_var_pe.out
             } else if (params.in_data_type == "se_illumina_reads"){
-                adjudicate_var_se(var_adj_script_wf, input_read_type, trimmed_reads, fastafile, joined_vcfs)
+                adjudicate_var_se(var_adj_script_wf, input_read_type, trimmed_reads, fastafile, joined_vcfs, min_frs, min_gcp)
                 adj_var = adjudicate_var_se.out
             }
 

@@ -1,5 +1,6 @@
 ETH	ethA_A112G		Uncertain_significance
-ETH	ethA_a-11g_inhA_t-770a		combo
+ETH	ethA_a-11g		combo
+ETH	inhA_t-770a		combo
 ETH	ethA_A12V		Uncertain_significance
 ETH	ethA_A152V		Uncertain_significance
 ETH	ethA_A185V		Uncertain_significance
@@ -23,8 +24,10 @@ ETH	ethA_A341E		Uncertain_significance
 ETH	ethA_A341V		Assoc_w_R_Interim
 ETH	ethA_A352E		Uncertain_significance
 ETH	ethA_A354G		Uncertain_significance
-ETH	ethA_A381P_inhA_c-777t		combo
-ETH	ethA_A381P_inhA_g-779t		combo
+ETH	ethA_A381P		combo
+ETH	inhA_c-777t		combo
+ETH	ethA_A381P		combo
+ETH	inhA_g-779t		combo
 ETH	ethA_A381P		Uncertain_significance
 ETH	ethA_A389D		Uncertain_significance
 ETH	ethA_A395D		Uncertain_significance
@@ -249,9 +252,13 @@ ETH	ethA_M59R		Uncertain_significance
 ETH	ethA_M59T		Uncertain_significance
 ETH	ethA_N287K		Uncertain_significance
 ETH	ethA_N298T		Uncertain_significance
-ETH	ethA_N345K_inhA_c-777t		combo
-ETH	ethA_N345K_inhA_g-154a		combo
-ETH	ethA_N345K_inhA_S94A_inhA_c-777t		combo
+ETH	ethA_N345K		combo
+ETH	inhA_c-777t		combo
+ETH	ethA_N345K		combo
+ETH	inhA_g-154a		combo
+ETH	ethA_N345K		combo
+ETH	inhA_S94A		combo
+ETH	inhA_c-777t		combo
 ETH	ethA_N345K		Uncertain_significance
 ETH	ethA_N379D		Uncertain_significance
 ETH	ethA_N379H		Uncertain_significance
@@ -351,7 +358,8 @@ ETH	ethA_S208A		Uncertain_significance
 ETH	ethA_S208L		Uncertain_significance
 ETH	ethA_S208P		Uncertain_significance
 ETH	ethA_S251R		Uncertain_significance
-ETH	ethA_S266R_inhA_c-777t		combo
+ETH	ethA_S266R		combo
+ETH	inhA_c-777t		combo
 ETH	ethA_S266R		Uncertain_significance
 ETH	ethA_S329P		Uncertain_significance
 ETH	ethA_S375Y		Uncertain_significance
@@ -581,7 +589,8 @@ ETH	inhA_G83R		Uncertain_significance
 ETH	inhA_I16T		Uncertain_significance
 ETH	inhA_I194T		Uncertain_significance
 ETH	inhA_I21T		Uncertain_significance
-ETH	inhA_I21V_inhA_c-777t		combo
+ETH	inhA_I21V		combo
+ETH	inhA_c-777t		combo
 ETH	inhA_I21V		Uncertain_significance
 ETH	inhA_I228V		Uncertain_significance
 ETH	inhA_I95L		Uncertain_significance
@@ -1035,11 +1044,15 @@ ETH	inhA_c-792t_(fabG1_c-30t)	1673410	Uncertain_significance
 ETH	inhA_g-789c_(fabG1_g-27c)	1673413	Uncertain_significance
 ETH	inhA_c-782t_(fabG1_c-20t)	1673420	Uncertain_significance
 ETH	inhA_g-779t_(fabG1_g-17t)	1673423	Uncertain_significance
-ETH	inhA_a-778g_(fabG1_a-16g)	1673424	Assoc_w_R_Interim
-ETH	inhA_c-777t_(fabG1_c-15t)	1673425	Assoc_w_R
+ETH	inhA_a-778g	1673424	Assoc_w_R_Interim
+ETH	fabG1_a-16g	1673424	Assoc_w_R_Interim
+ETH	inhA_c-777t	1673425	Assoc_w_R
+ETH	fabG1_c-15t	1673425	Assoc_w_R
 ETH	inhA_g-771a_(fabG1_g-9a)	1673431	Uncertain_significance
-ETH	inhA_t-770a_(fabG1_t-8a)	1673432	Assoc_w_R_Interim
-ETH	inhA_t-770c_(fabG1_t-8c)	1673432	Assoc_w_R_Interim
+ETH	inhA_t-770a	1673432	Assoc_w_R_Interim
+ETH	fabG1_t-8a	1673432	Assoc_w_R_Interim
+ETH	inhA_t-770c	1673432	Assoc_w_R_Interim
+ETH	fabG1_t-8c	1673432	Assoc_w_R_Interim
 ETH	inhA_t-770g_(fabG1_t-8g)	1673432	Uncertain_significance
 ETH	inhA_t-767c_(fabG1_t-5c)	1673435	Uncertain_significance
 ETH	inhA_g-764a_(fabG1_g-2a)	1673438	Uncertain_significance
@@ -1085,7 +1098,8 @@ ETH	inhA_a-176c_(fabG1_E196A)	1674026	Uncertain_significance
 ETH	inhA_g-160a_(fabG1_G201G)	1674042	Uncertain_significance
 ETH	inhA_c-158t_(fabG1_A202V)	1674044	Uncertain_significance
 ETH	inhA_c-156t_(fabG1_L203L)	1674046	Uncertain_significance
-ETH	inhA_g-154a_(fabG1_L203L)	1674048	Assoc_w_R_Interim
+ETH	inhA_g-154a	1674048	Assoc_w_R_Interim
+ETH	fabG1_L203L	1674048	Assoc_w_R_Interim
 ETH	inhA_c-140a_(fabG1_A208E)	1674062	Uncertain_significance
 ETH	inhA_g-139a_(fabG1_A208A)	1674063	Uncertain_significance
 ETH	inhA_c-127a_(fabG1_G212G)	1674075	Uncertain_significance

@@ -76,7 +76,7 @@ def convert_p_str(string):
     
     return "".join([nfp, vn, snp])
 
-def convert_c_str(string, allele_change, variant_eff):
+def convert_c_str(string, allele_change, variant_eff): 
     snp = ""
     sn_indel = ""
     indels = ""
@@ -193,7 +193,7 @@ def minos_vcf(data, lineage_positions_dict, dr_res_variants, dp_cov):
         pass
     else:
         if data[10] == "lineage_snps":
-            if "/".join([data[3], data[4]]) == "/".join([data[15], data[16]]):
+            if data[4] == data[17]:
                 lineage_positions_dict.setdefault(data[1], "/".join([data[3], data[4]]))
         elif data[10] == "amr_regions":
             for item in range(len(data[7].split("=")[1].split(",")[:])):
@@ -267,7 +267,7 @@ def process_many_vcf_files(vcf_file_list, variant_caller, dp_cov):
     per_file_dr_res_dict = {}
     per_file_lineage_dict = {}
     for a_vcf_file in vcf_file_list:
-        vcf_file_name = os.path.basename(a_vcf_file.split("_bt_intersect.vcf")[0])
+        vcf_file_name = os.path.basename(a_vcf_file.split("_intersect.vcf")[0])
         lineage_positions_list, dr_res_variants =  proces_a_vcf_file(a_vcf_file, variant_caller, dp_cov)
         per_file_dr_res_dict.setdefault(vcf_file_name, {})
         per_file_dr_res_dict[vcf_file_name] = dr_res_variants

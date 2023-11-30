@@ -5,10 +5,14 @@ INH	ahpC_A151S		Uncertain_significance
 INH	ahpC_A187P		Uncertain_significance
 INH	ahpC_A193V		Uncertain_significance
 INH	ahpC_A195S		Uncertain_significance
-INH	ahpC_c-52a_katG_S315T		combo
-INH	ahpC_c-52t_katG_S315T		combo
-INH	ahpC_c-57t_katG_S315T		combo
-INH	ahpC_c-81t_katG_S315T		combo
+INH	ahpC_c-52a		combo
+INH	katG_S315T		combo
+INH	ahpC_c-52t		combo
+INH	katG_S315T		combo
+INH	ahpC_c-57t		combo
+INH	katG_S315T		combo
+INH	ahpC_c-81t		combo
+INH	katG_S315T		combo
 INH	ahpC_D139H		Uncertain_significance
 INH	ahpC_D171N		Uncertain_significance
 INH	ahpC_D182G		Uncertain_significance
@@ -17,13 +21,16 @@ INH	ahpC_D22N		Uncertain_significance
 INH	ahpC_D33A		Uncertain_significance
 INH	ahpC_D41N		Uncertain_significance
 INH	ahpC_D73G		Uncertain_significance
-INH	ahpC_D73H_katG_S315T		combo
+INH	ahpC_D73H		combo
+INH	katG_S315T		combo
 INH	ahpC_D73H		Uncertain_significance
 INH	ahpC_D79N		Uncertain_significance
 INH	ahpC_D88G		Uncertain_significance
 INH	ahpC_E160K		Uncertain_significance
-INH	ahpC_E76K_inhA_c-777t		combo
-INH	ahpC_E76K_katG_S315T		combo
+INH	ahpC_E76K		combo
+INH	inhA_c-777t		combo
+INH	ahpC_E76K		combo
+INH	katG_S315T		combo
 INH	ahpC_E76K		Uncertain_significance
 INH	ahpC_F108S		Uncertain_significance
 INH	ahpC_F108V		Uncertain_significance
@@ -34,8 +41,10 @@ INH	ahpC_G32D		Uncertain_significance
 INH	ahpC_G32S		Uncertain_significance
 INH	ahpC_G45A		Uncertain_significance
 INH	ahpC_G45S		Uncertain_significance
-INH	ahpC_g-48a_katG_S315T		combo
-INH	ahpC_g-51a_katG_S315T		combo
+INH	ahpC_g-48a		combo
+INH	katG_S315T		combo
+INH	ahpC_g-51a		combo
+INH	katG_S315T		combo
 INH	ahpC_H100L		Uncertain_significance
 INH	ahpC_H100R		Uncertain_significance
 INH	ahpC_I137T		Uncertain_significance
@@ -68,11 +77,13 @@ INH	ahpC_V161L		Uncertain_significance
 INH	ahpC_W96C		Uncertain_significance
 INH	ahpC_W96R		Uncertain_significance
 INH	ahpC_Y34C		Uncertain_significance
-INH	inhA_-808_del_1_acataccgatttcggcccggccg_acataccgatttggcccggccg_katG_S315T		combo
+INH	inhA_-808_del_1_acataccgatttcggcccggccg_acataccgatttggcccggccg		combo
+INH	katG_S315T		combo
 INH	inhA_A114G		Uncertain_significance
 INH	inhA_A124V		Uncertain_significance
 INH	inhA_A133T		Uncertain_significance
-INH	inhA_a-176c_katG_S315T		combo
+INH	inhA_a-176c		combo
+INH	katG_S315T		combo
 INH	inhA_A190S		Uncertain_significance
 INH	inhA_A191T		Uncertain_significance
 INH	inhA_A201T		Uncertain_significance
@@ -84,12 +95,18 @@ INH	inhA_A239T		Uncertain_significance
 INH	inhA_A239V		Uncertain_significance
 INH	inhA_A252V		Uncertain_significance
 INH	inhA_A58V		Uncertain_significance
-INH	inhA_c-100a_katG_S315T		combo
-INH	inhA_c-67t_katG_S315T		combo
-INH	inhA_c-777t_katG_Q127P		combo
-INH	inhA_c-777t_katG_S315T		combo
-INH	inhA_c-777t_katG_T380I		combo
-INH	inhA_c-777t_katG_V473L		combo
+INH	inhA_c-100a		combo
+INH	katG_S315T		combo
+INH	inhA_c-67t		combo
+INH	katG_S315T		combo
+INH	inhA_c-777t		combo
+INH	katG_Q127P		combo
+INH	inhA_c-777t		combo
+INH	katG_S315T		combo
+INH	inhA_c-777t		combo
+INH	katG_T380I		combo
+INH	inhA_c-777t		combo
+INH	katG_V473L		combo
 INH	inhA_D52G		Uncertain_significance
 INH	inhA_D89N		Uncertain_significance
 INH	inhA_E209G		Uncertain_significance
@@ -98,7 +115,8 @@ INH	inhA_E80A		Uncertain_significance
 INH	inhA_F41S		Uncertain_significance
 INH	inhA_G141R		Uncertain_significance
 INH	inhA_G142S		Uncertain_significance
-INH	inhA_g-154a_katG_S315T		combo
+INH	inhA_g-154a		combo
+INH	katG_S315T		combo
 INH	inhA_G183D		Uncertain_significance
 INH	inhA_G183R		Uncertain_significance
 INH	inhA_G212S		Uncertain_significance
@@ -107,8 +125,10 @@ INH	inhA_G33D		Uncertain_significance
 INH	inhA_G33S		Uncertain_significance
 INH	inhA_G40W		Uncertain_significance
 INH	inhA_G76D		Uncertain_significance
-INH	inhA_g-779t_katG_S315T		combo
-INH	inhA_g-809c_katG_S315T		combo
+INH	inhA_g-779t		combo
+INH	katG_S315T		combo
+INH	inhA_g-809c		combo
+INH	katG_S315T		combo
 INH	inhA_G83R		Uncertain_significance
 INH	inhA_H24Q		Uncertain_significance
 INH	inhA_H70D		Uncertain_significance
@@ -117,11 +137,13 @@ INH	inhA_I15L		Uncertain_significance
 INH	inhA_I16T		Uncertain_significance
 INH	inhA_I16V		Uncertain_significance
 INH	inhA_I194M		Uncertain_significance
-INH	inhA_I194T_inhA_c-777t		combo
+INH	inhA_I194T		combo
+INH	inhA_c-777t		combo
 INH	inhA_I194T		Uncertain_significance
 INH	inhA_I21M		Uncertain_significance
 INH	inhA_I21T		Uncertain_significance
-INH	inhA_I21V_inhA_c-777t		combo
+INH	inhA_I21V		combo
+INH	inhA_c-777t		combo
 INH	inhA_I21V		Uncertain_significance
 INH	inhA_I228V		Uncertain_significance
 INH	inhA_I50V		Uncertain_significance
@@ -142,9 +164,11 @@ INH	inhA_S143C		Uncertain_significance
 INH	inhA_S19A		Uncertain_significance
 INH	inhA_S19L		Uncertain_significance
 INH	inhA_S73G		Uncertain_significance
-INH	inhA_S94A_inhA_c-777t		combo
-INH	inhA_S94A_katG_S315T		combo
-INH	inhA_S94A		Uncertain_significance
+INH	inhA_S94A		combo
+INH	inhA_c-777t		combo
+INH	inhA_S94A		combo
+INH	katG_S315T		combo
+INH	inhA_S94A		Assoc_w_R
 INH	inhA_T162S		Uncertain_significance
 INH	inhA_T236A		Uncertain_significance
 INH	inhA_T236M		Uncertain_significance
@@ -152,9 +176,12 @@ INH	inhA_T266A		Uncertain_significance
 INH	inhA_T2A		Uncertain_significance
 INH	inhA_T2P		Uncertain_significance
 INH	inhA_T4I		Not_assoc_w_R_Interim
-INH	inhA_t-770a_katG_S315T		combo
-INH	inhA_t-770c_katG_S315T		combo
-INH	inhA_t-770g_katG_S315T		combo
+INH	inhA_t-770a		combo
+INH	katG_S315T		combo
+INH	inhA_t-770c		combo
+INH	katG_S315T		combo
+INH	inhA_t-770g		combo
+INH	katG_S315T		combo
 INH	inhA_V171I		Uncertain_significance
 INH	inhA_V189I		Uncertain_significance
 INH	inhA_V203A		Uncertain_significance
@@ -1867,11 +1894,13 @@ INH	inhA_g-789c_(fabG1_g-27c)	1673413	Uncertain_significance
 INH	inhA_g-783a_(fabG1_g-21a)	1673419	Uncertain_significance
 INH	inhA_c-782t_(fabG1_c-20t)	1673420	Uncertain_significance
 INH	inhA_g-779t_(fabG1_g-17t)	1673423	Uncertain_significance
-INH	inhA_a-778g_(fabG1_a-16g)	1673424	Assoc_w_R_Interim
-INH	inhA_c-777t_(fabG1_c-15t)	1673425	Assoc_w_R
+INH	inhA_a-778g	1673424	Assoc_w_R_Interim
+INH	fabG1_a-16g	1673424	Assoc_w_R_Interim
+INH	inhA_c-777t	1673425	Assoc_w_R
+INH	fabG1_c-15t	1673425	Assoc_w_R
 INH	inhA_g-771a_(fabG1_g-9a)	1673431	Uncertain_significance
-INH	inhA_t-770a_(fabG1_t-8a)	1673432	Assoc_w_R_Interim
-INH	inhA_t-770c_(fabG1_t-8c)	1673432	Assoc_w_R_Interim
+INH	inhA_t-770a	1673432	Assoc_w_R_Interim
+INH	fabG1_t-8c	1673432	Assoc_w_R_Interim
 INH	inhA_t-770g_(fabG1_t-8g)	1673432	Uncertain_significance
 INH	inhA_t-767c_(fabG1_t-5c)	1673435	Uncertain_significance
 INH	inhA_g-764a_(fabG1_g-2a)	1673438	Uncertain_significance
@@ -1959,7 +1988,8 @@ INH	inhA_g-160c_(fabG1_G201G)	1674042	Uncertain_significance
 INH	inhA_g-159t_(fabG1_A202S)	1674043	Uncertain_significance
 INH	inhA_c-158t_(fabG1_A202V)	1674044	Uncertain_significance
 INH	inhA_c-156t_(fabG1_L203L)	1674046	Uncertain_significance
-INH	inhA_g-154a_(fabG1_L203L)	1674048	Assoc_w_R
+INH	inhA_g-154a	1674048	Assoc_w_R
+INH	fabG1_L203L	1674048	Assoc_w_R
 INH	inhA_c-140a_(fabG1_A208E)	1674062	Uncertain_significance
 INH	inhA_g-139a_(fabG1_A208A)	1674063	Uncertain_significance
 INH	inhA_c-127a_(fabG1_G212G)	1674075	Uncertain_significance
@@ -1973,6 +2003,7 @@ INH	inhA_c-93t_(fabG1_L224L)	1674109	Uncertain_significance
 INH	inhA_t-88a_(fabG1_A225A)	1674114	Uncertain_significance
 INH	inhA_g-76a_(fabG1_A229A)	1674126	Uncertain_significance
 INH	inhA_c-67t_(fabG1_I232I)	1674135	Uncertain_significance
+INH	inhA_c-40t_(fabG1_G241G)	1674162	Not_assoc_w_R
 INH	inhA_c-40t_(fabG1_G241G)	1674162	Not_assoc_w_R
 INH	inhA_c-25t_(fabG1_G246G)	1674177	Uncertain_significance
 INH	inhA_g-20a_(fabG1_!248!)	1674182	Uncertain_significance

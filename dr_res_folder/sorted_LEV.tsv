@@ -45,7 +45,8 @@ LEV	gyrA_A787G		Uncertain_significance
 LEV	gyrA_A814T		Uncertain_significance
 LEV	gyrA_A90G		Not_assoc_w_R_Interim
 LEV	gyrA_A90V		Assoc_w_R
-LEV	gyrA_A90V_gyrA_D94A		combo
+LEV	gyrA_A90V		combo
+LEV	gyrA_D94A		combo
 LEV	gyrA_D111G		Uncertain_significance
 LEV	gyrA_D199E		Uncertain_significance
 LEV	gyrA_D199Y		Uncertain_significance

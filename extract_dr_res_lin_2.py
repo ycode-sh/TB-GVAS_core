@@ -93,11 +93,11 @@ class Sample_class():
                                                 for gene_name in self.per_sample_drug_dict[sample_name].keys()}
                                                 for sample_name in self.sample_name_list}
         if self.sample_led_int_variants_only:
-            self.copied_int_variants_attr = self.sample_led_int_variants_only.copy()
-            self.filtered_int_variants_attr =  remove_empty_conf_grad_drug_name(self.copied_int_variants_attr)
+                self.copied_int_variants_attr = self.sample_led_int_variants_only.copy()
+                self.filtered_int_variants_attr =  remove_empty_conf_grad_drug_name(self.copied_int_variants_attr)
         else:
             pass
-        
+    
         
         ### Process sample VCFs with other variants
 

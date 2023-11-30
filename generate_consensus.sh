@@ -7,7 +7,11 @@
 
 filename=$(basename $2 _subtract_repeat.vcf) 
 
-bcftools view --exclude-types indels,mnps,bnd,other --no-update --trim-alt-alleles --exclude 'GT="0/0"' --exclude-uncalled $2 --output "${filename}_snps.vcf"
+bcftools view --exclude-types indels,mnps,bnd,other --no-update --trim-alt-alleles --exclude 'GT="0/0"' --exclude-uncalled $2 --output "${filename}_snps_temp.vcf"
+
+bcftools view --include "FORMAT/DP >= 10" "${filename}_snps_temp.vcf" --output "${filename}_snps.vcf"
+
+rm "${filename}_snps_temp.vcf"
 
 bgzip "${filename}_snps.vcf"
 

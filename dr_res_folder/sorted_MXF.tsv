@@ -35,7 +35,8 @@ MXF	gyrA_A787G		Uncertain_significance
 MXF	gyrA_A814T		Uncertain_significance
 MXF	gyrA_A90G		Not_assoc_w_R_Interim
 MXF	gyrA_A90V		Assoc_w_R
-MXF	gyrA_A90V_gyrA_D94A		combo
+MXF	gyrA_A90V		combo
+MXF	gyrA_D94A		combo
 MXF	gyrA_D111G		Uncertain_significance
 MXF	gyrA_D209G		Uncertain_significance
 MXF	gyrA_D211E		Uncertain_significance
