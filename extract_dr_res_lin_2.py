@@ -42,6 +42,7 @@ def convert_filtered_dict_to_table(filtered_drug_res_dict, headers=None):
 
     return table
 
+
 def create_table_from_filtered_dict(filtered_drug_res_dict):
     table = convert_filtered_dict_to_table(filtered_drug_res_dict)
     if not table:
@@ -57,9 +58,21 @@ def create_table_from_filtered_dict2(filtered_drug_res_dict):
         return None
     
     headers = ["Sample_name"] + ["Reference"] + ["Lineage"] + ["Sub_lineage"] + ["position"] + ["Allele_change, lsp, spoligptype"]
-    return tabulate(table, headers, tablefmt="grid")      
+    return tabulate(table, headers, tablefmt="grid")
 
-class Drug_name_List():
+
+def create_table_from_filtered_dict3(filtered_drug_res_dict):
+    table = convert_filtered_dict_to_table(filtered_drug_res_dict)
+    if not table:
+        return None
+    
+    headers = ["Sample_name"] + ["Drug"] + ["Gene"] + ["variant"] + ["var_eff", "var_pos", "allele_change", "strand"]
+
+    return tabulate(table, headers, tablefmt="grid")
+
+
+
+class Drug_name_List(): # Converts user-specified drug-name list into a class object - A dictionary with the drug name as keys and mutation catalogue as values
     def __init__(self, my_per_drug_res_dict, drug_name_list):
         self.my_per_drug_res_dict = my_per_drug_res_dict
         self.drug_name_list = drug_name_list
@@ -71,7 +84,8 @@ class Drug_name_List():
             else:
                 self.drug_name_led_attr = {drug_name:self.my_per_drug_res_dict[drug_name] for drug_name in self.drug_name_list}
 
-class Confidence_grading(Drug_name_List):
+class Confidence_grading(Drug_name_List): # Convert the drug-name led class object derived above into another class object - A dictionary with drug names as keys, and another dictionary as values. 
+    # The value dictionary have confidence grading as keys and a dictionary of genes, variants, positins as values
     def __init__(self, my_per_drug_res_dict, drug_name_list, confidence_grading_list):
         Drug_name_List.__init__(self, my_per_drug_res_dict, drug_name_list)
         self.confidence_grading_list = confidence_grading_list
@@ -80,7 +94,7 @@ class Confidence_grading(Drug_name_List):
             self.drugname_confidence_grading_led_attr[key] = {confidence_grading:self.drug_name_led_attr[key][confidence_grading] for confidence_grading in self.confidence_grading_list if confidence_grading in self.drug_name_led_attr[key].keys()}
 
 
-class Sample_class():
+class Sample_class(): # Coverts sample information into a class object
     def __init__(self, per_sample_drug_dict, sample_name_list):
         self.per_sample_drug_dict = per_sample_drug_dict
         self.sample_name_list = sample_name_list
@@ -109,10 +123,11 @@ class Sample_class():
 
 
         ###### inhA-fabG1 relationship
+        # Pending
         
 
 
-class Assign_drug_res(Confidence_grading, Sample_class):
+class Assign_drug_res(Confidence_grading, Sample_class): # Sample name, drug name, and confidence gradings can be determined by 
     def __init__(self, my_per_drug_res_dict, drug_name_list, confidence_grading_list, per_sample_drug_dict, sample_name_list):
         Confidence_grading.__init__(self, my_per_drug_res_dict, drug_name_list, confidence_grading_list)
         Sample_class.__init__(self, per_sample_drug_dict, sample_name_list)
@@ -120,6 +135,7 @@ class Assign_drug_res(Confidence_grading, Sample_class):
         
         #### Process intergenic variants only
         self.samplename_drug_led_int_var_attr = {}
+        self.novel_int_var = {}
         if self.filtered_int_variants_attr is not None:
             for int_sample_name in self.filtered_int_variants_attr.keys():
                 for int_gene_name in self.filtered_int_variants_attr[int_sample_name].keys():
@@ -128,7 +144,6 @@ class Assign_drug_res(Confidence_grading, Sample_class):
                             for confidence_grading in self.drugname_confidence_grading_led_attr[drug_name].keys():
                                 if int_gene_name in self.drugname_confidence_grading_led_attr[drug_name][confidence_grading].keys():
                                     for key, value in self.drugname_confidence_grading_led_attr[drug_name][confidence_grading][int_gene_name].items():
-            
                                             for sel_var_attr in self.filtered_int_variants_attr[int_sample_name][int_gene_name][int_var]:
                                                 if "/".join([key[0].upper(), key[-1].upper()]) == sel_var_attr[2]:        
                                                     if value[0] == sel_var_attr[1]:
@@ -137,39 +152,116 @@ class Assign_drug_res(Confidence_grading, Sample_class):
                                                             self.samplename_drug_led_int_var_attr[int_sample_name][drug_name].setdefault(confidence_grading, {})
                                                             self.samplename_drug_led_int_var_attr[int_sample_name][drug_name][confidence_grading].setdefault(int_gene_name, {})
                                                             self.samplename_drug_led_int_var_attr[int_sample_name][drug_name][confidence_grading][int_gene_name].setdefault(key, sel_var_attr)
-        self.long_table_dr_int_var_call = create_table_from_filtered_dict(self.samplename_drug_led_int_var_attr)    
+        
+                                                elif  "/".join([key[0].upper(), key[-1].upper()]) != sel_var_attr[2]:
+                                                    if value[0] != sel_var_attr[1]:
+                                                        self.novel_int_var.setdefault(int_sample_name, {})
+                                                        self.novel_int_var[int_sample_name].setdefault(drug_name, {})
+                                                        self.novel_int_var[int_sample_name][drug_name].setdefault(int_gene_name, {})
+                                                        self.novel_int_var[int_sample_name][drug_name][int_gene_name].setdefault(sel_var_attr[2], sel_var_attr)
+                                                        
+
+
+                                                        #self.novel_int_var[int_sample_name][drug_name][int_gene_name][sel_var_attr[2]].append(sel_var_attr[0])
+                                                        #self.novel_int_var[int_sample_name][drug_name][int_gene_name][sel_var_attr[2]].append(sel_var_attr[1])
+                                                        #self.novel_int_var[int_sample_name][drug_name][int_gene_name][sel_var_attr[2]].append(sel_var_attr[2])
+                                                        
+                                                   
+
+        self.long_table_dr_int_var_call = create_table_from_filtered_dict(self.samplename_drug_led_int_var_attr)
+
+        self.long_novel_int_variant_call =  create_table_from_filtered_dict3(self.novel_int_var)
+       
+
         ### Process other variants (p. and c. variants)
         self.samplename_drug_led_dr_res_prof_attr = {sample_name:{drug_name: {confidence_grading:{} 
                                                     for confidence_grading in self.confidence_grading_list} 
                                                     for drug_name in self.drug_name_list} 
                                                     for sample_name in self.sample_name_list}
+        # Remove confidence grading
+        self.drugname_led_no_conf_grading_attr = {}
+
+        for drug_name in self.drugname_confidence_grading_led_attr.keys():
+                for confidence_grading in self.drugname_confidence_grading_led_attr[drug_name].keys():
+                        for gene_string in self.drugname_confidence_grading_led_attr[drug_name][confidence_grading].keys():
+                            for variant_string in self.drugname_confidence_grading_led_attr[drug_name][confidence_grading][gene_string].keys():
+                               #for pos in self.drugname_confidence_grading_led_attr[drug_name][confidence_grading][gene_string][variant_string]:
+                                    self.drugname_led_no_conf_grading_attr.setdefault(drug_name, {})
+                                    self.drugname_led_no_conf_grading_attr[drug_name].setdefault(gene_string, {})
+                                    self.drugname_led_no_conf_grading_attr[drug_name][gene_string].setdefault(variant_string, self.drugname_confidence_grading_led_attr[drug_name][confidence_grading][gene_string][variant_string])
+                                    
+                                    
+
+        
+        #print(self.drugname_led_no_conf_grading_attr)
+        self.samplename_drug_led_novel_variants = {sample_name:{drug_name: {}
+                                                    for drug_name in self.drug_name_list} 
+                                                    for sample_name in self.sample_name_list}
+        
+
         for sample_name in self.samplename_drug_led_dr_res_prof_attr.keys():
                 for drug_name in self.samplename_drug_led_dr_res_prof_attr[sample_name].keys():
                         for confidence_grading in self.samplename_drug_led_dr_res_prof_attr[sample_name][drug_name].keys():
+                            #print(self.drugname_confidence_grading_led_attr[drug_name][confidence_grading])
+                            
+                            # Extract novel variants
+                            self.samplename_drug_led_novel_variants[sample_name][drug_name] = {matched_gene_name:{matched_variant:self.sample_led_dr_res_prof_attr[sample_name][matched_gene_name][matched_variant]
+                            
+                            for matched_variant in self.sample_led_dr_res_prof_attr[sample_name][matched_gene_name].keys()
+                            if self.sample_led_dr_res_prof_attr[sample_name][matched_gene_name][matched_variant][0][0] != "synonymous_variant"
+                            if  matched_variant not in set(self.drugname_led_no_conf_grading_attr[drug_name][matched_gene_name].keys())
+                            if len(matched_variant) != 1 
+                            }
+                            for matched_gene_name in self.sample_led_dr_res_prof_attr[sample_name].keys()
+                            if matched_gene_name in self.drugname_confidence_grading_led_attr[drug_name][confidence_grading].keys()
+                            }
+                          
+                            # Extract catalogued variants
                             self.samplename_drug_led_dr_res_prof_attr[sample_name][drug_name][confidence_grading] = {matched_gene_name:{matched_variant:self.sample_led_dr_res_prof_attr[sample_name][matched_gene_name][matched_variant][0]
                             for matched_variant in self.sample_led_dr_res_prof_attr[sample_name][matched_gene_name].keys()
                             #if any(list(map(lambda est_var: matched_variant in est_var, list(self.drugname_confidence_grading_led_attr[drug_name][confidence_grading][matched_gene_name].keys())))) is True
                             #if self.sample_led_dr_res_prof_attr[sample_name][matched_gene_name][matched_variant][1] in list(self.drugname_confidence_grading_led_attr[drug_name][confidence_grading][matched_gene_name].values())}
-                            if  matched_variant in self.drugname_confidence_grading_led_attr[drug_name][confidence_grading][matched_gene_name].keys()}
+                            if  matched_variant in self.drugname_confidence_grading_led_attr[drug_name][confidence_grading][matched_gene_name].keys()
+                            }
                             for matched_gene_name in self.sample_led_dr_res_prof_attr[sample_name].keys()
                             if matched_gene_name in self.drugname_confidence_grading_led_attr[drug_name][confidence_grading].keys()}
+                            
+                            
+        # if self.per_sample_drug_dict[sample_name][matched_gene_name][matched_variant] != "intragenic_variant" or self.per_sample_drug_dict[sample_name][matched_gene_name][matched_variant] != "intergenic_region"}
+
+        ### Debug             
+
+        # Filter off Empty cells
         
-        
-                
-        
+        # 1. Catalogued variants
         self.copied_attr_for_long_dr_call =  self.samplename_drug_led_dr_res_prof_attr.copy()
         self.filtered_attr_for_long_dr_call = remove_empty_conf_grad_drug_name(self.copied_attr_for_long_dr_call)
-
-        
         self.long_table_dr_call = create_table_from_filtered_dict(self.filtered_attr_for_long_dr_call)
+        
+        
+        # 2. Novel variants
+        self.copied_novel_variants = self.samplename_drug_led_novel_variants.copy()
+        self.filtered_novel_variants = remove_empty_conf_grad_drug_name(self.copied_novel_variants)
+        self.long_table_novel_var_call = create_table_from_filtered_dict3(self.filtered_novel_variants)
+        
+        
+        
+
 
         
-        self.register = json.dumps(self.filtered_attr_for_long_dr_call)
+        #self.register = json.dumps(self.filtered_attr_for_long_dr_call)
         
+        
+        
+        
+
+
 
     def __call__(self, drug_names:list, sample_names:list,confidence_list:list, return_only_p_c_call=False):
         self.filtered_attr_for_short_dr_call = self.filtered_attr_for_long_dr_call.copy()
         self.filtered_attr_for_short_dr_int_var_call = self.samplename_drug_led_int_var_attr.copy()
+        self.filtered_novel_variants_for_call=self.filtered_novel_variants.copy()
+
         sample_names = tuple(sample_names)
         drug_names = tuple(drug_names)
         confidence_list = tuple(confidence_list)
@@ -188,13 +280,20 @@ class Assign_drug_res(Confidence_grading, Sample_class):
                                     for drug in drug_names
                                     if drug in self.filtered_attr_for_short_dr_int_var_call[sample].keys()}
                                     for sample in sample_names}
+                    self.filtered_novel_variant_called = {sample:{drug:self.filtered_novel_variants_for_call[sample][drug]
+                                    for drug in drug_names
+                                    if drug in self.filtered_novel_variants_for_call[sample].keys()}
+                                    for sample in sample_names}
+        
         
         self.short_table_dr_call =  create_table_from_filtered_dict(self.filtered_called_dr)
         self.short_table_int_var_dr_call =  create_table_from_filtered_dict(self.filered_int_var_called_dr)
+        self.novel_variant = create_table_from_filtered_dict3(self.filtered_novel_variant_called)
+
         if return_only_p_c_call == True:
             return self.short_table_dr_call
         else:
-            return self.short_table_dr_call, self.short_table_int_var_dr_call
+            return self.short_table_dr_call, self.short_table_int_var_dr_call, self.novel_variant
 
 
 

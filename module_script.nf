@@ -55,19 +55,33 @@ workflow trim_fastq {
         input_read_type
         se_reads_wf
     main:
-        if (params.in_data_type != "minion_ont_reads"){
-            if (params.in_data_type == "pe_illumina_reads"){
+        if (params.cohort_joint_genotype == "ncgvcf"){
+            if (params.in_data_type != "minion_ont_reads"){
+                if (params.in_data_type == "pe_illumina_reads"){
+                    trim_fastq_pe(trim_sample_script_wf, pe_reads_wf, adapter_seq, input_read_type)
+                    trimmed_reads = trim_fastq_pe.out.trimmed_reads | flatten | filter { it =~/P.fastq/ } | map { [it.name - ~/_[12]P.fastq/, it] } | groupTuple
+                } else if (params.in_data_type == "se_illumina_reads"){
+                    trim_fastq_se(trim_sample_script_wf, se_reads_wf, adapter_seq, input_read_type)
+                    trimmed_reads = trim_fastq_se.out
+                }
+            } else {
+                trimmed_reads = se_reads_wf
+            }
+        } else if(params.cohort_joint_genotype == "cgvcf"){
+            if (params.in_data_type == "pe_min"){
                 trim_fastq_pe(trim_sample_script_wf, pe_reads_wf, adapter_seq, input_read_type)
                 trimmed_reads = trim_fastq_pe.out.trimmed_reads | flatten | filter { it =~/P.fastq/ } | map { [it.name - ~/_[12]P.fastq/, it] } | groupTuple
-            } else if (params.in_data_type == "se_illumina_reads"){
-                trim_fastq_se(trim_sample_script_wf, se_reads_wf, adapter_seq, input_read_type)
-                trimmed_reads = trim_fastq_se.out
+                trimmed_reads_2 = se_reads_wf
             }
-        } else {
-            trimmed_reads = se_reads_wf
+            else if(params.in_data_type == "pe_only"){
+                trim_fastq_pe(trim_sample_script_wf, pe_reads_wf, adapter_seq, input_read_type)
+                trimmed_reads = trim_fastq_pe.out.trimmed_reads | flatten | filter { it =~/P.fastq/ } | map { [it.name - ~/_[12]P.fastq/, it] } | groupTuple
+            }      
+            
         }
     emit:
         trimmed_reads
+        //trimmed_reads_2
 }
 
 
@@ -292,10 +306,34 @@ process emit_sam_pe {
         """
 }
 
+process emit_sam_pe_min {
+    //publishDir "${params.out_dir_int}/Sam_files", mode: 'copy', overwrite: true
+    cpus = 8
+    memory = 30.GB
+    input:
+        val (emit_sam_script)
+        tuple val(reads_pair_id), path(pe_reads)
+        val (fastafile)
+        val (input_read_type)
+        path (se_reads)
+        
+
+
+    output:
+        path "*_sam", emit: reads_sam
+
+    script:
+        """
+        bash ${emit_sam_script} ${pe_reads[0]} ${pe_reads[1]} ${fastafile} ${reads_pair_id} ${input_read_type} ${se_reads}
+        
+        """
+}
+
 workflow emit_sam {
     take:
         emit_sam_script_wf
         trimmed_reads
+        trimmed_reads_2
         fastafile
         input_read_type
 
@@ -303,9 +341,17 @@ workflow emit_sam {
         if (params.in_data_type == "se_illumina_reads" | params.in_data_type == "minion_ont_reads"){
             emit_sam_se(emit_sam_script_wf, trimmed_reads, fastafile, input_read_type)
             emitted_sam = emit_sam_se.out
-        } else if (params.in_data_type == "pe_illumina_reads"){
+        } else if (params.in_data_type == "pe_illumina_reads" | params.in_data_type == "pe_only"){
             emit_sam_pe(emit_sam_script_wf, trimmed_reads, fastafile, input_read_type)
             emitted_sam = emit_sam_pe.out
+        } else if(params.in_data_type == "pe_min"){
+            //emit_sam_pe_min(emit_sam_script_wf, trimmed_reads, fastafile, input_read_type, trimmed_reads_2)
+            //emitted_sam = emit_sam_pe_min.out | collect | flatten
+            emit_sam_pe(emit_sam_script_wf, trimmed_reads, fastafile, input_read_type)
+            emit_sam_se(emit_sam_script_wf, trimmed_reads_2, fastafile, input_read_type)
+
+            emitted_sam = emit_sam_pe.out.concat(emit_sam_se.out)
+            
         }
     emit:
         emitted_sam
@@ -451,7 +497,7 @@ process bcf_call {
 
 
 process gatk_call {
-    //publishDir "${params.out_dir_int}/gatk_call", mode: 'copy', overwrite: true
+    publishDir "${params.out_dir_int}/gatk_call", mode: 'copy', overwrite: true
     errorStrategy 'ignore'
     input:
         val gatk_call_script
@@ -472,7 +518,7 @@ process gatk_call {
 }
 
 process gatk_call_gvcf {
-    //publishDir "${params.out_dir_int}/gvcf_call", mode: 'copy', overwrite: true
+    publishDir "${params.out_dir_int}/gvcf_call", mode: 'copy', overwrite: true
     errorStrategy 'ignore'
     input:
         val gatk_call_script
@@ -522,7 +568,7 @@ process gatk_joint_genotyping {
 
 //read1= $1 read2= $2 fastafile = $3 vcf_1 = $4 vcf_2 = $5 samplename = $6
 process adjudicate_var_pe {
-    //publishDir "${params.out_dir_int}/Minos_call", mode: 'copy', overwrite: true
+    publishDir "${params.out_dir_int}/Minos_call", mode: 'copy', overwrite: true
     errorStrategy 'ignore'
 
     input:
@@ -546,7 +592,7 @@ process adjudicate_var_pe {
 }
 
 process adjudicate_var_se {
-    //publishDir "${params.out_dir_int}/Minos_call", mode: 'copy', overwrite: true
+    publishDir "${params.out_dir_int}/Minos_call", mode: 'copy', overwrite: true
     errorStrategy 'ignore'
 
   

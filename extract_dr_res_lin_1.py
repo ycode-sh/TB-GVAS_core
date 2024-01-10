@@ -5,7 +5,7 @@ import os
 
 # Step 2: Prepare annotation files
 # 2A
-# This function is working as expected. It takes a list containing dr_resistance files
+# This function is working as expected. It takes a list containing dr_resistance catalogue files
 def define_drug_res_dict(drug_resistance_file):
     confidence_grading_summary_list = ["Assoc_w_R", "Assoc_w_R_Interim", "combo", "Not_assoc_w_R", "Not_assoc_w_R_Interim", "Uncertain_significance"]
     with open(drug_resistance_file, 'r') as drug_file:
@@ -30,7 +30,8 @@ def define_drug_res_dict(drug_resistance_file):
                 drug_res_dict[conf_string][gene_string][var_string].append(pos_string)
     return drug_res_dict 
 
-# This function is working as expected
+# This function is working as expected. It takes each dr catalogue files and calls the funcion above (define_drug_res_dict). Information from the 
+# output of the function above becomes the value of a key:value dictionary while drug name is used as key
 def make_per_drug_res_dict(drug_resistance_file_list):
     per_drug_dr_res_dict = {}
     for file in drug_resistance_file_list:
@@ -44,12 +45,12 @@ def make_per_drug_res_dict(drug_resistance_file_list):
 
 # 2B: 
 
-# 3. Parse VCF files
+# 3. Parse SnpEff-annotated VCF files
 
-# The "conver_p_str" function will convert protein SNPs from HGVS format to WHO mutation catalogue format while "convert_c_str" 
+# The "conver_p_str" function will convert synonymous SNPs from HGVS format to WHO mutation catalogue format while "convert_c_str" 
 # will convert cdna SNPs and INDELs from HGVS format to WHO mutation catalogue format
 
-def convert_p_str(string):
+def convert_p_str(string):  # TO extract synonynus, missense, and "stop gained" variants
     fp = ''
     nfp = ''
     snp = ''
@@ -76,7 +77,7 @@ def convert_p_str(string):
     
     return "".join([nfp, vn, snp])
 
-def convert_c_str(string, allele_change, variant_eff): 
+def convert_c_str(string, allele_change, variant_eff): # To extract frameshift, upstream_gene and downstream_gene variants
     snp = ""
     sn_indel = ""
     indels = ""
@@ -85,7 +86,8 @@ def convert_c_str(string, allele_change, variant_eff):
     spl_str = string.split(".", 1)[1].replace("*", "")
     ref = allele_change.split("/", 1)[0].lower()
     alt = allele_change.split("/", 1)[1].lower()
-    if "dup" in spl_str:     
+
+    if "dup" in spl_str:  # Extract single nucleotide indel involving a duplication   
         numb = str(int(re.findall(r'\d+', spl_str)[0]) + 1) # Added 1 bcos I realized snpEff miscalculates var_pos in frameshift mutations
 
         if int(len(ref)) - int(len(alt)) == 1:
@@ -94,28 +96,35 @@ def convert_c_str(string, allele_change, variant_eff):
             dup_type = "ins"
         dup_sn_indel = "_".join([numb, dup_type, "1", ref, alt])
         
-    elif re.search("^[-]?[0-9]*[a-zA-Z][>][a-zA-Z]$", spl_str):  
+    elif re.search("^[-]?[0-9]*[a-zA-Z][>][a-zA-Z]$", spl_str):  # Extract single nucleotide upstream and dowstream variants
         pattern = r'^([-]?[0-9]*)([a-zA-Z])(>)([a-zA-Z])$'
         match = re.match(pattern, spl_str)
-        
+        #print(match.group(1))
         if match:
             snp =  "".join([match.group(2).lower(), match.group(1), match.group(4).lower()])
 
-    elif re.search("^[-]?[0-9]*(del)?(ins)?[a-zA-Z]$", spl_str):   
-        pattern = r'^([-]?[0-9]*)((del)?(ins)?)([a-zA-Z])$'
+    elif re.search("^[-]?[0-9]*(del)?(ins)?[a-zA-Z]$", spl_str):   # Extract single nucleotide Insertions or deletions (may be a frameshift variant or not)
+        pattern = r'^([-]?[0-9]*)((ins)?(del)?)([a-zA-Z])$'
         
         match = re.match(pattern, spl_str)
         if match:
-            if variant_eff == "frameshift_variant":
-                modified_pos = str(int(match.group(1)) + 1) # Added 1 bcos I realized snpEff miscalculates var_pos in frameshift mutations
+            if variant_eff == "frameshift_variant": # If sn_INDEL leads to a frameshift on Open Reading frame
+                print(match.group(1))
+                if match.group(2) == "ins":
+                    modified_pos = str(int(match.group(1)) - 1) # snpeffs mistankenly miscalculates to +1 when it's frameshifts insertion so I subtracted 1
+                elif match.group(2) == "del":
+                    modified_pos = str(int(match.group(1)) + 1) # Added 1 bcos I realized snpEff miscalculates var_pos in frameshift mutations
+                
+                sn_indel = "_".join([modified_pos, match.group(2), "1", ref, alt])
+            elif variant_eff == "upstream_gene_variant" and "-" in match.group(1): # snpeffs mistankenly miscalculates to -1 when it's upstream_gene_variant and it's a deletion, so I added +1 to remove the "-1" added
+                modified_pos = str(int(match.group(1)) + 1)
                 sn_indel = "_".join([modified_pos, match.group(2), "1", ref, alt])
             else:
                 sn_indel = "_".join([match.group(1), match.group(2), "1", ref, alt])
             
-    else:        
-        
+    else:        # Extract mnp INDELS 
         re.search("^[-]?[0-9]*_[-]?[0-9]*(del)?(ins)?[a-zA-Z]*$", spl_str)
-        spl_str1 = spl_str.split("_", 1)[1]   # I have been struggling with which one to take, the first or second?
+        spl_str1 = spl_str.split("_", 1)[1]   # Verified: The second item is picked
         spl_str1 = re.findall(r'\d+', spl_str1)[0]
         pattern = r'^([-]?[0-9]*_[-]?[0-9]*)((ins)?(del)?)([a-zA-Z]*)$'
         match = re.match(pattern, spl_str)
@@ -128,7 +137,7 @@ def convert_c_str(string, allele_change, variant_eff):
                 raise TypeError("Variant %s type not known" %match.group(2))
             nN = len(spl_str2)
             if variant_eff == "frameshift_variant":
-                modified_pos = str(int(spl_str1) + 1)   # Added +1  Because snpEff miscalculates frameshifts mutation positions
+                modified_pos = str(int(spl_str1))   # Verified: No need to add +1 even though it's a frameshifts mutation positions (Left it the way it is)
                 indels = "_".join([modified_pos, match.group(2), str(nN), ref, alt])
             else:
                 indels = "_".join([spl_str1, match.group(2), str(nN), ref, alt])
@@ -142,7 +151,7 @@ def convert_c_str(string, allele_change, variant_eff):
     else:
         return indels
 
-def convert_n_string(string):
+def convert_n_string(string):  #Extract inter and intragenic variants (only snps for now)
     string = string.split(".", 1)[1].replace("*", "")
     int_snps = ""
     if re.search("^[-]?[0-9]*[a-zA-Z][>][a-zA-Z]$", string):
@@ -152,7 +161,7 @@ def convert_n_string(string):
             int_snps =  "".join([match.group(2).lower()])
     return int_snps
 
-def modify_drug_res_dict(dr_res_variants, var, allele_change, Gene_name, variant_eff, var_pos, exp_drugs):
+def modify_drug_res_dict(dr_res_variants, var, allele_change, Gene_name, variant_eff, var_pos, exp_drugs):  # Include mata-data on every variant. Make all metadata (and the variant they are associated with) into a list
     details_list = []
     details_list.append(variant_eff)
     details_list.append(var_pos)
@@ -187,7 +196,7 @@ def process_any_string(dr_res_variants:dict, string, allele_change, Gene_name, v
 
 
 def minos_vcf(data, lineage_positions_dict, dr_res_variants, dp_cov):
-    if data[9].split(":")[0] == "0/0":  # Only screen heterogeneous variants further 
+    if data[9].split(":")[0] == "0/0":  # Only screen/process hetrozygous and homozygous alt variants further 
         pass
     elif float(data[9].split(":")[1].replace('.', '0')) < float(dp_cov):   # Only screen variants with DP > 10
         pass
@@ -274,4 +283,3 @@ def process_many_vcf_files(vcf_file_list, variant_caller, dp_cov):
         per_file_lineage_dict.setdefault(vcf_file_name, {})
         per_file_lineage_dict[vcf_file_name] = lineage_positions_list
     return per_file_dr_res_dict, per_file_lineage_dict
-

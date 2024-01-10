@@ -72,6 +72,10 @@ drug_resistance_instance = Assign_drug_res(my_per_drug_res_dict, drug_name_list,
 
 #print(drug_resistance_instance.long_table_dr_int_var_call)
 
+print(drug_resistance_instance.long_table_novel_var_call)
+#print(drug_resistance_instance.long_table_dr_int_var_call)
+#print(drug_resistance_instance.long_novel_int_variant_call)
+
 
 ##############  WRITE RESULT TO JSON  ###############
 
